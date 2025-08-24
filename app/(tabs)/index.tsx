@@ -15,6 +15,7 @@ import {
   View,
 } from "react-native";
 import { BarChart, PieChart } from "react-native-chart-kit";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { TabBar, TabView } from "react-native-tab-view";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { CATEGORIES } from "../../constants/categories";
@@ -291,7 +292,7 @@ export default function Home() {
   const screenWidth = Dimensions.get("window").width;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>{title}</Text>
       <View style={styles.inputRow}>
         <TextInput
@@ -423,7 +424,7 @@ export default function Home() {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -556,7 +557,7 @@ const pickerStyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, paddingTop: 40, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
   title: {
     fontSize: 24,
     fontWeight: "bold",

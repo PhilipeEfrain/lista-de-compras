@@ -2,7 +2,7 @@
   "expo": {
     "name": "Lista de Compras",
     "slug": "lista-de-compras",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/shopping-card-svgrepo-com.png",
     "scheme": "shoppinglist",
