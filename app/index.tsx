@@ -1,38 +1,37 @@
+import { pickerStyles } from "@/components/pickerStyles";
+import { styles } from "@/components/styles";
+import { CATEGORIES } from "@/constants/categories";
 import { colorsGraphic } from "@/constants/Colors";
+import { Strings } from "@/constants/Strings";
+import { Item } from "@/type/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback, useEffect, useState } from "react";
+import { router, useFocusEffect } from 'expo-router';
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  Alert,
-  Button,
-  Dimensions,
-  FlatList,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    Button,
+    Dimensions,
+    FlatList,
+    Modal,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { BarChart, PieChart } from "react-native-chart-kit";
 import { SafeAreaView } from "react-native-safe-area-context";
-// Removido import do TabView
-import { router, useFocusEffect } from 'expo-router';
 import Icon from "react-native-vector-icons/MaterialIcons";
-import { CATEGORIES } from "../../constants/categories";
-import { Item } from "../../type/types";
+
 
 
 
 export default function Home() {
-  const [title] = useState("Minha Lista de Compras");
+  const [title] = useState(Strings.APP_TITLE);
   const [newItem, setNewItem] = useState("");
   const [selectedType, setSelectedType] = useState(CATEGORIES[0]);
   const [items, setItems] = useState<Item[]>([]);
   const [showCharts, setShowCharts] = useState(false);
-
-  // Removido estado do TabView
-
   const [modalVisible, setModalVisible] = useState(false);
   const [currentItemId, setCurrentItemId] = useState<string | null>(null);
   const [priceInput, setPriceInput] = useState("");
@@ -42,10 +41,8 @@ export default function Home() {
     loadItems();
   }, []);
 
-  // Recarregar lista quando a tela receber foco
   useFocusEffect(
     useCallback(() => {
-      console.log("Recarregando lista ao receber foco...");
       loadItems();
     }, [])
   );
@@ -57,7 +54,7 @@ export default function Home() {
         setItems(JSON.parse(json));
       }
     } catch {
-      Alert.alert("Erro ao carregar lista");
+      Alert.alert(Strings.ALERT_ERROR, Strings.MSG_ERROR_LOAD_LIST);
     }
   }
 
@@ -65,10 +62,8 @@ export default function Home() {
     try {
       await AsyncStorage.setItem("@shopping_list", JSON.stringify(updated));
 
-      // Verifica se todos os itens foram comprados
       const allItemsGot = updated.length > 0 && updated.every(item => item.got);
       if (allItemsGot) {
-        // Calcula o total gasto
         const totalSpent = updated.reduce((acc, item) => {
           if (item.got && item.price && item.quantity) {
             return acc + (item.price * item.quantity);
@@ -76,7 +71,6 @@ export default function Home() {
           return acc;
         }, 0);
 
-        // Cria o objeto da lista para o histórico
         const completedList = {
           id: Date.now().toString(),
           date: new Date().toISOString(),
@@ -84,15 +78,11 @@ export default function Home() {
           totalSpent
         };
 
-        // Carrega o histórico existente
         const historyJson = await AsyncStorage.getItem("@shopping_history");
         const history = historyJson ? JSON.parse(historyJson) : [];
 
-        // Adiciona a nova lista ao histórico
         const updatedHistory = [...history, completedList];
         await AsyncStorage.setItem("@shopping_history", JSON.stringify(updatedHistory));
-
-        // Limpa a lista atual
         setItems([]);
         await AsyncStorage.setItem("@shopping_list", JSON.stringify([]));
 
@@ -118,7 +108,7 @@ export default function Home() {
 
   function addItem() {
     if (!newItem.trim()) {
-      Alert.alert("Digite o nome do item");
+      Alert.alert(Strings.ALERT_ERROR, Strings.MSG_TYPE_ITEM_NAME);
       return;
     }
     const newEntry: Item = {
@@ -141,12 +131,12 @@ export default function Home() {
 
   function confirmGot() {
     if (!currentItemId) {
-      Alert.alert("Erro", "Item não selecionado para confirmação.");
+      Alert.alert(Strings.ALERT_ERROR, Strings.MSG_NO_ITEM_SELECTED);
       return;
     }
 
     if (!priceInput || !quantityInput) {
-      Alert.alert("Preencha preço e quantidade");
+      Alert.alert(Strings.ALERT_ERROR, Strings.MSG_FILL_PRICE_QUANTITY);
       return;
     }
 
@@ -154,7 +144,7 @@ export default function Home() {
     const quantity = parseInt(quantityInput, 10);
 
     if (isNaN(price) || isNaN(quantity) || price <= 0 || quantity <= 0) {
-      Alert.alert("Valores inválidos");
+      Alert.alert(Strings.ALERT_ERROR, Strings.MSG_INVALID_VALUES);
       return;
     }
 
@@ -279,9 +269,6 @@ export default function Home() {
       </View>
     );
   }
-
-  // Removida a função renderScene que não é mais necessária
-
   const totalExpense = items.reduce((acc, item) => {
     if (item.got && item.price && item.quantity) {
       return acc + item.price * item.quantity;
@@ -337,7 +324,7 @@ export default function Home() {
       </View>
       <View style={styles.inputRow}>
         <TextInput
-          placeholder="Adicionar item"
+          placeholder={Strings.INPUT_ITEM_NAME}
           value={newItem}
           onChangeText={setNewItem}
           style={styles.input}
@@ -354,7 +341,7 @@ export default function Home() {
         </View>
 
         <View style={styles.buttonContainer}>
-          <Button title="Adicionar" onPress={addItem} />
+          <Button title={Strings.BTN_ADD_ITEM} onPress={addItem} />
         </View>
       </View>
 
@@ -365,23 +352,23 @@ export default function Home() {
               style={styles.deleteButton}
               onPress={() => {
                 Alert.alert(
-                  "Deletar Lista",
-                  "Tem certeza que deseja deletar esta lista?",
+                  Strings.ALERT_DELETE_LIST,
+                  Strings.CONFIRM_DELETE_LIST,
                   [
-                    { 
-                      text: "Cancelar", 
-                      style: "cancel" 
+                    {
+                      text: Strings.CONFIRM_CANCEL,
+                      style: "cancel"
                     },
                     {
-                      text: "Deletar",
+                      text: Strings.CONFIRM_DELETE,
                       style: "destructive",
                       onPress: async () => {
                         try {
                           setItems([]);
                           await AsyncStorage.setItem("@shopping_list", JSON.stringify([]));
-                          Alert.alert("Lista deletada com sucesso!");
+                          Alert.alert(Strings.ALERT_SUCCESS, Strings.MSG_LIST_DELETED);
                         } catch {
-                          Alert.alert("Erro ao deletar lista");
+                          Alert.alert(Strings.ALERT_ERROR, Strings.MSG_ERROR_DELETE_LIST);
                         }
                       }
                     }
@@ -390,7 +377,7 @@ export default function Home() {
               }}
             >
               <Icon name="delete" size={20} color="#fff" />
-              <Text style={styles.deleteButtonText}>Deletar Lista</Text>
+              <Text style={styles.deleteButtonText}>{Strings.BTN_DELETE_LIST}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -414,15 +401,15 @@ export default function Home() {
                   await AsyncStorage.setItem("@shopping_list", JSON.stringify([]));
 
                   Alert.alert(
-                    "Lista Salva!",
-                    "A lista foi movida para o histórico.",
+                    Strings.ALERT_LIST_SAVED,
+                    Strings.MSG_LIST_MOVED_HISTORY,
                     [
                       {
-                        text: "Ver Histórico",
+                        text: Strings.DRAWER_HISTORY,
                         onPress: () => router.push("history" as any),
                       },
                       {
-                        text: "OK",
+                        text: Strings.CONFIRM_OK,
                         style: "cancel"
                       }
                     ]
@@ -433,7 +420,7 @@ export default function Home() {
               }}
             >
               <Icon name="save" size={20} color="#fff" />
-              <Text style={styles.saveButtonText}>Salvar Lista</Text>
+              <Text style={styles.saveButtonText}>{Strings.BTN_SAVE_LIST}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -456,17 +443,16 @@ export default function Home() {
         renderItem={({ item }) => renderItem(item)}
         ListFooterComponent={() => {
           const missingItems = items.filter(item => item.missing);
-          
+
           return (
             <View style={{ padding: 10 }}>
               {missingItems.length > 0 && (
                 <TouchableOpacity
                   style={styles.missingListButton}
                   onPress={() => {
-                    // Mantém apenas os itens marcados como missing
                     const updatedList = missingItems.map(item => ({
                       ...item,
-                      missing: false, // Reseta o status de missing
+                      missing: false,
                       got: false,
                       price: undefined,
                       quantity: undefined
@@ -491,13 +477,13 @@ export default function Home() {
                   >
                     <Icon name={showCharts ? "keyboard-arrow-up" : "bar-chart"} size={24} color="#fff" />
                     <Text style={styles.chartsButtonText}>
-                      {showCharts ? "Ocultar gráficos" : "Visualizar gráficos de gastos"}
+                      {showCharts ? Strings.BTN_HIDE_CHARTS : Strings.BTN_TOGGLE_CHARTS}
                     </Text>
                   </TouchableOpacity>
 
                   {showCharts && (
                     <View style={styles.chartsContainer}>
-                      <Text style={styles.chartTitle}>Categoria mais cara</Text>
+                      <Text style={styles.chartTitle}>{Strings.CHART_SPENDING_BY_CATEGORY}</Text>
                       <BarChart
                         data={getBarChartData()}
                         width={screenWidth - 40}
@@ -519,7 +505,7 @@ export default function Home() {
                         showValuesOnTopOfBars
                       />
 
-                      <Text style={styles.chartTitle}>Itens por categoria</Text>
+                      <Text style={styles.chartTitle}>{Strings.CHART_ITEMS_BY_CATEGORY}</Text>
                       <PieChart
                         data={getPieChartData()}
                         width={screenWidth - 40}
@@ -544,7 +530,7 @@ export default function Home() {
       <Modal transparent visible={modalVisible} animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={{ marginBottom: 8 }}>Preço unitário (R$):</Text>
+            <Text style={{ marginBottom: 8 }}>{Strings.INPUT_ITEM_PRICE}:</Text>
             <TextInput
               value={priceInput}
               onChangeText={(text) => {
@@ -662,268 +648,6 @@ function PickerDropdown({
   );
 }
 
-const pickerStyles = StyleSheet.create({
-  container: {
-    borderWidth: 1,
-    borderColor: "#797979",
-    borderRadius: 5,
-    backgroundColor: "#fff",
-    width: 130,
-  },
-  selected: {
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-  },
-  selectedText: {
-    fontSize: 14,
-  },
-  absoluteOptions: {
-    position: "absolute",
-    top: 48,
-    left: 10,
-    right: 10,
-    zIndex: 999,
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#797979",
-    borderRadius: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  optionsContainer: {
-    maxHeight: 150,
-    borderTopWidth: 1,
-    borderColor: "#ccc",
-  },
-  option: {
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-  },
-  selectedOption: {
-    backgroundColor: "#cce5ff",
-  },
-  optionText: {
-    fontSize: 14,
-  },
-});
 
-const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: "#fff",
-    paddingTop: 20,
-    paddingHorizontal: 20 
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 10,
-    marginBottom: 10,
-  },
-  deleteButton: {
-    backgroundColor: '#dc3545',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 6,
-    gap: 8,
-  },
-  deleteButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  historyButton: {
-    backgroundColor: '#1976d2',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 6,
-    gap: 8,
-  },
-  historyButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  headerButtons: {
-    marginBottom: 15,
-  },
-  saveButton: {
-    backgroundColor: '#4caf50',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  missingListButton: {
-    backgroundColor: "#1976d2",
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 20,
-    alignItems: "center",
-  },
-  missingListButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-    gap: 8,
-    flexWrap: "wrap",
-  },
-  input: {
-    flex: 2,
-    minWidth: 120,
-    borderWidth: 1,
-    borderColor: "#797979",
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 12,
-  },
-  pickerContainer: {
-    flex: 1,
-    minWidth: 90,
-  },
-  buttonContainer: {
-    flexBasis: "100%",
-    marginTop: 8,
-  },
-  itemRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderColor: "#ddd",
-  },
-  itemName: { flex: 1, fontSize: 16, textTransform: "capitalize" },
-  itemGot: {
-    textDecorationLine: "line-through",
-    color: "#4caf50",
-    fontWeight: "bold",
-  },
-  itemMissing: {
-    color: "#f44336",
-    fontWeight: "bold",
-    textDecorationLine: "line-through",
-  },
-  buttonsRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  btn: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 5,
-    backgroundColor: "#eee",
-  },
-  btnGot: {
-    backgroundColor: "#c8e6c9",
-  },
-  btnMissing: {
-    backgroundColor: "#ffcdd2",
-  },
-  btnText: {
-    fontWeight: "bold",
-    color: "#333",
-  },
-  total: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    paddingHorizontal: 30,
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 20,
-  },
-  modalInput: {
-    borderWidth: 1,
-    borderColor: "#797979",
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    marginBottom: 15,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  categoryTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginTop: 20,
-    marginBottom: 8,
-    color: "#333",
-  },
-  itemPriceQuantity: {
-    fontSize: 14,
-    color: "#555",
-    marginLeft: 8,
-    marginRight: 8,
-  },
-  chartTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginTop: 20,
-    textAlign: "center",
-    color: "#1976d2",
-  },
-  chartsButton: {
-    backgroundColor: "#1976d2",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 15,
-    borderRadius: 8,
-    marginVertical: 15,
-    gap: 8,
-  },
-  chartsButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  chartsContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 15,
-    marginTop: 10,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-});
+
+

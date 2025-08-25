@@ -7,3 +7,10 @@ export type Item = {
   price?: number;
   quantity?: number;
 };
+
+export type ShoppingList = {
+  id: string;
+  date: string;
+  items: Item[];
+  totalSpent: number;
+};
