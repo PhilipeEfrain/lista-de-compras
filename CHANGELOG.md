@@ -5,6 +5,33 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [1.1.0] - 2025-08-26
+
+### Modificado
+- Simplificação da entrada de quantidade
+  - Removida a regra de formatação com zero à esquerda
+  - Quantidade padrão é 1 quando não preenchida
+  - Input de quantidade com tamanho e estilo otimizados
+  - Melhor experiência de digitação para o usuário
+
+- Melhorias no tema escuro
+  - Cores em tons pastéis para melhor contraste
+  - Ajuste nas cores dos inputs para seguir o tema
+  - Correção nas cores dos placeholders
+  - Melhor legibilidade dos textos
+
+- Ajustes de interface
+  - Redução do espaçamento entre botões de ação
+  - Simplificação da exibição do valor total
+  - Correção do posicionamento do botão de adicionar item
+  - Melhoria no layout dos inputs
+
+### Corrigido
+- Erro de duplicação do botão de adicionar item
+- Posicionamento incorreto do botão central na tela vazia
+- Problemas de cor no tema escuro nos inputs
+- Quebra de layout com textos muito longos
+
 ## [1.0.0] - 2025-08-25
 
 ### Adicionado
