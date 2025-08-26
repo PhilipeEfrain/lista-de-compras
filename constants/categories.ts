@@ -1,12 +1,3 @@
-export const CATEGORIES: string[] = [
-  "Limpeza",
-  "Vegetais",
-  "Açougue",
-  "Bebidas",
-  "Padaria",
-  "Frios e Laticínios",
-  "Mercearia",
-  "Higiene",
-  "Congelados",
-  "Outros",
-];
+import { CATEGORY_ICONS } from "./icons";
+
+export const CATEGORIES: string[] = Object.keys(CATEGORY_ICONS);

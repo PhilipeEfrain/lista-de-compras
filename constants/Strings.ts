@@ -2,6 +2,11 @@ export const Strings = {
   // Títulos de Navegação
   APP_TITLE: "Lista de Compras",
   HISTORY_TITLE: "Histórico de Compras",
+  TABS_HOME_TITLE: "Lista de Compras",
+
+  // Botões de Navegação
+  BTN_BACK_TO_LIST: "Voltar para Lista",
+  BTN_REUSE_LIST: "Reutilizar Lista",
   
   // Labels do Menu
   DRAWER_CURRENT_LIST: "Lista Atual",
@@ -11,6 +16,7 @@ export const Strings = {
   BTN_ADD_ITEM: "Adicionar Item",
   BTN_SAVE_LIST: "Salvar Lista",
   BTN_DELETE_LIST: "Deletar Lista",
+  BTN_CLEAR_LIST: "Limpar Lista",
   BTN_TOGGLE_CHARTS: "Ver Gráficos",
   BTN_HIDE_CHARTS: "Ocultar Gráficos",
   
@@ -65,4 +71,32 @@ export const Strings = {
   MSG_LIST_DELETED: "Lista deletada com sucesso!",
   MSG_LIST_REUSED: "Os itens foram adicionados à sua lista atual",
   MSG_NO_ITEM_SELECTED: "Item não selecionado para confirmação.",
+  
+  // Títulos e Labels
+  TITLE_ADD_ITEM: "Adicionar Item",
+  TITLE_ITEM_NAME: "Nome do Item",
+  TITLE_PRODUCT_CATEGORY: "Categoria do Produto",
+  TITLE_QUANTITY: "Quantidade",
+  TITLE_TOTAL_SPENT: "Total gasto",
+  TITLE_KEEP_MISSING: "Manter apenas itens que faltam",
+  TITLE_TOP_5_EXPENSIVE: "Top 5 produtos mais caros",
+  TITLE_ITEMS_DISTRIBUTION: "Distribuição de Itens",
+  TITLE_ADD_FIRST_ITEM: "Adicione o primeiro item na lista",
+  
+  // Lista de Compras
+  TITLE_SAVE_LIST: "Salvar Lista de Compras",
+  TITLE_LIST_NAME: "Nome da Lista",
+  PLACEHOLDER_LIST_NAME: "Ex: Compras do Mês",
+  MSG_TYPE_LIST_NAME: "Digite um nome para a lista",
+
+  // Histórico
+  BTN_DELETE_ALL_HISTORY: "Apagar Todo Histórico",
+  BTN_DELETE_LIST_HISTORY: "Apagar Lista",
+  ALERT_DELETE_HISTORY: "Apagar Histórico",
+  ALERT_DELETE_LIST_HISTORY: "Apagar Lista do Histórico",
+  CONFIRM_DELETE_ALL_HISTORY: "Tem certeza que deseja apagar todo o histórico? Essa ação não pode ser desfeita.",
+  CONFIRM_DELETE_LIST_HISTORY: "Tem certeza que deseja apagar esta lista do histórico? Essa ação não pode ser desfeita.",
+  MSG_HISTORY_DELETED: "Histórico apagado com sucesso!",
+  MSG_LIST_DELETED_HISTORY: "Lista apagada do histórico com sucesso!",
+  MSG_ERROR_DELETE_HISTORY: "Erro ao apagar histórico",
 }

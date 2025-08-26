@@ -1,50 +1,55 @@
-# Welcome to your Expo app 👋
+# Lista de Compras �️
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Um aplicativo de lista de compras desenvolvido com [Expo](https://expo.dev) e React Native. Perfeito para organizar suas compras com categorização de itens e histórico de listas.
 
-## Get started
+## Recursos Principais
 
-1. Install dependencies
+- ✨ Interface intuitiva e fácil de usar
+- 📱 Design responsivo para iOS e Android
+- 🌗 Suporte a tema claro e escuro
+- 📂 Categorização de itens
+- 📊 Histórico de listas de compras
+- 💾 Persistência de dados local
 
+## Como Começar
+
+1. Instale as dependências:
    ```bash
    npm install
    ```
 
-2. Start the app
-
+2. Inicie o aplicativo:
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+No terminal, você encontrará opções para abrir o app em:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- [Build de desenvolvimento](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Emulador Android](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [Simulador iOS](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Estrutura do Projeto
 
-## Get a fresh project
+- `/app`: Telas principais (rotas do Expo Router)
+- `/components`: Componentes reutilizáveis
+- `/constants`: Constantes (temas, strings, etc.)
+- `/context`: Contextos React
+- `/hooks`: Hooks personalizados
+- `/types`: Definições de tipos TypeScript
+- `/utils`: Funções utilitárias
 
-When you're ready, run:
+## Desenvolvimento
 
-```bash
-npm run reset-project
-```
+O projeto utiliza:
+- [React Native](https://reactnative.dev/) com [Expo](https://expo.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Expo Router](https://docs.expo.dev/router/introduction/) para navegação
+- AsyncStorage para persistência de dados
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Recursos Úteis
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [Documentação do Expo](https://docs.expo.dev/)
+- [React Native](https://reactnative.dev/docs/getting-started)
+- [TypeScript](https://www.typescriptlang.org/docs/)

@@ -5,11 +5,12 @@ export type Item = {
   got: boolean;
   missing: boolean;
   price?: number;
-  quantity?: number;
+  quantity: number;
 };
 
 export type ShoppingList = {
   id: string;
+  title: string;
   date: string;
   items: Item[];
   totalSpent: number;
