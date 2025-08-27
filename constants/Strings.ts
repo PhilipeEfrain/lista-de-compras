@@ -1,18 +1,14 @@
 export const Strings = {
-  // Títulos de Navegação
   APP_TITLE: "Lista de Compras",
   HISTORY_TITLE: "Histórico de Compras",
   TABS_HOME_TITLE: "Lista de Compras",
 
-  // Botões de Navegação
   BTN_BACK_TO_LIST: "Voltar para Lista",
   BTN_REUSE_LIST: "Reutilizar Lista",
   
-  // Labels do Menu
-  DRAWER_CURRENT_LIST: "Lista Atual",
+  DRAWER_CURRENT_LIST: "Lista de compras",
   DRAWER_HISTORY: "Histórico",
   
-  // Labels dos Botões
   BTN_ADD_ITEM: "Adicionar Item",
   BTN_SAVE_LIST: "Salvar Lista",
   BTN_DELETE_LIST: "Deletar Lista",
@@ -20,27 +16,22 @@ export const Strings = {
   BTN_TOGGLE_CHARTS: "Ver Gráficos",
   BTN_HIDE_CHARTS: "Ocultar Gráficos",
   
-  // Mensagens
   MSG_EMPTY_LIST: "Sua lista está vazia",
   MSG_LOADING: "Carregando...",
   MSG_ERROR: "Ocorreu um erro",
   MSG_SAVED: "Lista salva com sucesso!",
   MSG_DELETED: "Lista deletada com sucesso!",
   
-  // Títulos dos Gráficos
   CHART_ITEMS_BY_CATEGORY: "Itens por Categoria",
   CHART_SPENDING_BY_CATEGORY: "Gastos por Categoria",
   
-  // Labels de Input
   INPUT_ITEM_NAME: "Nome do Item",
   INPUT_ITEM_PRICE: "Preço",
   INPUT_ITEM_CATEGORY: "Categoria",
   
-  // Labels de Status
   STATUS_GOT: "Obtido",
   STATUS_MISSING: "Faltando",
   
-  // Mensagens de Confirmação
   CONFIRM_DELETE_LIST: "Tem certeza que deseja deletar esta lista?",
   CONFIRM_YES: "Sim",
   CONFIRM_NO: "Não",
@@ -48,7 +39,6 @@ export const Strings = {
   CONFIRM_DELETE: "Deletar",
   CONFIRM_OK: "OK",
   
-  // Títulos de Alert
   ALERT_ERROR: "Erro",
   ALERT_SUCCESS: "Sucesso",
   ALERT_DELETE_LIST: "Deletar Lista",
@@ -56,7 +46,6 @@ export const Strings = {
   ALERT_LIST_SAVED: "Lista Salva!",
   ALERT_LIST_REUSED: "Lista Reutilizada",
   
-  // Mensagens de Alert
   MSG_ERROR_LOAD_LIST: "Erro ao carregar lista",
   MSG_ERROR_SAVE_LIST: "Erro ao salvar lista",
   MSG_ERROR_DELETE_LIST: "Erro ao deletar lista",
@@ -72,8 +61,7 @@ export const Strings = {
   MSG_LIST_REUSED: "Os itens foram adicionados à sua lista atual",
   MSG_NO_ITEM_SELECTED: "Item não selecionado para confirmação.",
   
-  // Títulos e Labels
-  TITLE_ADD_ITEM: "Adicionar Item",
+ TITLE_ADD_ITEM: "Adicionar Item",
   TITLE_ITEM_NAME: "Nome do Item",
   TITLE_PRODUCT_CATEGORY: "Categoria do Produto",
   TITLE_QUANTITY: "Quantidade",
@@ -83,13 +71,11 @@ export const Strings = {
   TITLE_ITEMS_DISTRIBUTION: "Distribuição de Itens",
   TITLE_ADD_FIRST_ITEM: "Adicione o primeiro item na lista",
   
-  // Lista de Compras
   TITLE_SAVE_LIST: "Salvar Lista de Compras",
   TITLE_LIST_NAME: "Nome da Lista",
   PLACEHOLDER_LIST_NAME: "Ex: Compras do Mês",
   MSG_TYPE_LIST_NAME: "Digite um nome para a lista",
 
-  // Histórico
   BTN_DELETE_ALL_HISTORY: "Apagar Todo Histórico",
   BTN_DELETE_LIST_HISTORY: "Apagar Lista",
   ALERT_DELETE_HISTORY: "Apagar Histórico",
@@ -99,4 +85,10 @@ export const Strings = {
   MSG_HISTORY_DELETED: "Histórico apagado com sucesso!",
   MSG_LIST_DELETED_HISTORY: "Lista apagada do histórico com sucesso!",
   MSG_ERROR_DELETE_HISTORY: "Erro ao apagar histórico",
+
+  BTN_SHARE_WHATSAPP: "WhatsApp",
+  MSG_ERROR_SHARE_WHATSAPP: "Não foi possível abrir o WhatsApp. Verifique se o aplicativo está instalado.",
+  MSG_ERROR_SHARE: "Ocorreu um erro ao tentar compartilhar a lista.",
+  WHATSAPP_LIST_TITLE: "📝 Lista de Compras",
+  WHATSAPP_TOTAL_TITLE: "💰 Total"
 }

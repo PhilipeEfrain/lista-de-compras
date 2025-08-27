@@ -1,17 +1,14 @@
 export const lightTheme = {
-  // Main colors
   primary: '#1976d2',
   success: '#4caf50',
   danger: '#dc3545',
   warning: '#ff9800',
   
-  // Background colors
   background: '#ffffff',
   surface: '#f5f5f5',
   card: '#ffffff',
   modal: '#ffffff',
   
-  // Text colors
   text: {
     primary: '#333333',
     secondary: '#666666',
@@ -19,18 +16,15 @@ export const lightTheme = {
     inverse: '#ffffff',
   },
   
-  // Border colors
   border: '#e0e0e0',
   divider: '#eeeeee',
   
-  // States
   states: {
     got: '#c8e6c9',
     missing: '#ffcdd2',
     disabled: '#eeeeee',
   },
   
-  // Shadows
   shadow: {
     color: '#000000',
     opacity: 0.25,

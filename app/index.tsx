@@ -2,18 +2,18 @@ import { CategoryPicker } from "@/components/CategoryPicker";
 import { pickerStyles } from "@/components/pickerStyles";
 import { createStyles } from "@/components/styles";
 import { CATEGORIES } from "@/constants/categories";
-import { colorsGraphic } from "@/constants/Colors";
 import { CATEGORY_ICONS } from "@/constants/icons";
 import { Strings } from "@/constants/Strings";
 import { useTheme } from "@/context/ThemeContext";
 import { Item } from "@/type/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from 'expo-router';
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Dimensions,
   FlatList,
+  Linking,
   Modal,
   ScrollView,
   Text,
@@ -21,14 +21,12 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { BarChart, PieChart } from "react-native-chart-kit";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 export default function Home() {
   const { theme } = useTheme();
   const styles = createStyles(theme);
-  const [title] = useState(Strings.APP_TITLE);
   const [newItem, setNewItem] = useState("");
   const [newItemQuantity, setNewItemQuantity] = useState("");
   const [selectedType, setSelectedType] = useState(CATEGORIES[0]);
@@ -250,72 +248,60 @@ export default function Home() {
     return acc;
   }, 0);
 
-  function getBarChartData() {
-    const totalsByCategory: Record<string, number> = {};
-
-    items.forEach((item) => {
-      if (item.got && item.price && item.quantity) {
-        totalsByCategory[item.type] =
-          (totalsByCategory[item.type] || 0) + item.price * item.quantity;
+  function generateWhatsAppText(): string {
+    const categoriesMap = items.reduce((acc, item) => {
+      if (!acc[item.type]) {
+        acc[item.type] = [];
       }
+      acc[item.type].push(item);
+      return acc;
+    }, {} as Record<string, Item[]>);
+
+    let text = `${Strings.WHATSAPP_LIST_TITLE}\n\n`;
+
+    Object.entries(categoriesMap).forEach(([category, categoryItems]) => {
+      text += `*${category}*\n`;
+      categoryItems.forEach(item => {
+        const status = item.got ? "✅" : item.missing ? "❌" : "⭕";
+        const quantity = item.quantity?.toString().padStart(2, "0") || "01";
+        const price = item.price 
+          ? ` - R$ ${(item.price * (item.quantity || 1)).toFixed(2).replace(".", ",")}` 
+          : "";
+        text += `${status} ${quantity}x ${item.name}${price}\n`;
+      });
+      text += "\n";
     });
 
-    const labels = Object.keys(totalsByCategory);
-    const data = labels.map((cat) => totalsByCategory[cat]);
+    if (totalExpense > 0) {
+      text += `${Strings.WHATSAPP_TOTAL_TITLE}: *R$ ${totalExpense.toFixed(2).replace(".", ",")}*`;
+    }
 
-    return {
-      labels,
-      datasets: [
-        {
-          data,
-        },
-      ],
-    };
+    return text;
   }
 
-  function getProductPriceData() {
-    const itemPrices = items
-      .filter(item => item.got && item.price)
-      .map(item => ({
-        name: item.name,
-        price: item.price || 0
-      }))
-      .sort((a, b) => b.price - a.price)
-      .slice(0, 5);
+  async function handleShareWhatsApp() {
+    try {
+      const text = generateWhatsAppText();
+      const encodedText = encodeURIComponent(text);
+      const whatsappUrl = `whatsapp://send?text=${encodedText}`;
 
-    return {
-      labels: itemPrices.map(item => item.name),
-      datasets: [
-        {
-          data: itemPrices.map(item => item.price),
-        },
-      ],
-    };
-  }
-
-  function getPieChartData() {
-    const countByCategory: Record<string, number> = {};
-
-    items.forEach((item) => {
-      countByCategory[item.type] = (countByCategory[item.type] || 0) + 1;
-    });
-
-    return Object.entries(countByCategory).map(([key, value], i) => ({
-      name: key,
-      population: value,
-      color: colorsGraphic[i % colorsGraphic.length],
-      legendFontColor: theme.text.primary,
-      legendFontSize: 14,
-    }));
+      const canOpen = await Linking.canOpenURL(whatsappUrl);
+      
+      if (canOpen) {
+        await Linking.openURL(whatsappUrl);
+      } else {
+        Alert.alert(Strings.ALERT_ERROR, Strings.MSG_ERROR_SHARE_WHATSAPP);
+      }
+    } catch (error) {
+      Alert.alert(Strings.ALERT_ERROR, Strings.MSG_ERROR_SHARE);
+    }
   }
 
   const screenWidth = Dimensions.get("window").width;
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.title}>{title}</Text>
-      </View>
+      <View style={styles.headerContainer}></View>
 
       <Modal
         transparent
@@ -406,53 +392,78 @@ export default function Home() {
               <Icon name="history" size={20} color="#fff" />
               <Text style={styles.historyButtonText}>Histórico</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.historyButton, { backgroundColor: '#25D366' }]}
+              onPress={handleShareWhatsApp}
+            >
+              <Icon name="share" size={20} color="#fff" />
+              <Text style={styles.historyButtonText}>{Strings.BTN_SHARE_WHATSAPP}</Text>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.totalContainer}>
-            <Text style={styles.total}>
-              Total gasto: R$ {totalExpense.toFixed(2).replace(".", ",")}
-            </Text>
+            <View>
+              <Text style={{ fontSize: 14, color: theme.text.secondary, marginBottom: 2 }}>
+                Total gasto
+              </Text>
+              <Text style={styles.total}>
+                R$ {totalExpense.toFixed(2).replace(".", ",")}
+              </Text>
+            </View>
             <TouchableOpacity
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+              activeOpacity={0.7}
+              style={{ 
+              flexDirection: 'row', 
+              alignItems: 'center',
+              gap: 6,
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              backgroundColor: theme.danger,
+              borderRadius: 8,
+              opacity: 0.9
+              }}
               onPress={() => {
-                Alert.alert(
-                  Strings.ALERT_DELETE_LIST,
-                  Strings.CONFIRM_DELETE_LIST,
-                  [
-                    {
-                      text: Strings.CONFIRM_CANCEL,
-                      style: "cancel"
-                    },
-                    {
-                      text: Strings.CONFIRM_DELETE,
-                      style: "destructive",
-                      onPress: async () => {
-                        try {
-                          setItems([]);
-                          await AsyncStorage.setItem("@shopping_list", JSON.stringify([]));
-                          Alert.alert(Strings.ALERT_SUCCESS, Strings.MSG_LIST_DELETED);
-                        } catch {
-                          Alert.alert(Strings.ALERT_ERROR, Strings.MSG_ERROR_DELETE_LIST);
-                        }
-                      }
-                    }
-                  ]
-                );
+              Alert.alert(
+                Strings.ALERT_DELETE_LIST,
+                Strings.CONFIRM_DELETE_LIST,
+                [
+                {
+                  text: Strings.CONFIRM_CANCEL,
+                  style: "cancel"
+                },
+                {
+                  text: Strings.CONFIRM_DELETE,
+                  style: "destructive",
+                  onPress: async () => {
+                  try {
+                    setItems([]);
+                    await AsyncStorage.setItem("@shopping_list", JSON.stringify([]));
+                    Alert.alert(Strings.ALERT_SUCCESS, Strings.MSG_LIST_DELETED);
+                  } catch {
+                    Alert.alert(Strings.ALERT_ERROR, Strings.MSG_ERROR_DELETE_LIST);
+                  }
+                  }
+                }
+                ]
+              );
               }}
             >
-              <Icon name="delete" size={24} color={theme.danger} />
-              <Text style={{ color: theme.danger, fontSize: 16 }}>{Strings.BTN_CLEAR_LIST}</Text>
+              <Icon name="delete-outline" size={20} color={theme.text.primary} />
+              <Text style={{ color: theme.text.primary, fontSize: 14, fontWeight: '500' }}>
+              {Strings.BTN_CLEAR_LIST}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
-    
 
-      <FlatList
-        data={Array.from(new Set(items.map(item => item.type)))}
-        keyExtractor={(category) => category}
-        renderItem={({ item: category }) => {
-          const categoryItems = items.filter(item => item.type === category);
+
+      <FlatList<string>
+        data={Array.from(new Set(items.map((item: Item) => item.type)))}
+        keyExtractor={(category: string): string => category}
+        renderItem={({ item: category }: { item: string }) => {
+          const categoryItems = items.filter((item: Item) => item.type === category);
           return (
             <View style={styles.categoryGroup}>
               <Text style={styles.categoryTitle}>{category}</Text>
@@ -462,12 +473,12 @@ export default function Home() {
         }}
         ListEmptyComponent={() => (
           <View style={styles.emptyStateContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.addButtonCentered}
               onPress={() => setAddItemModalVisible(true)}
             >
               <Icon name="add" size={36} color="#fff" />
-              <Text style={styles.addButtonText}>Adicionar item na lista</Text>
+              <Text style={styles.addButtonText}>{Strings.BTN_ADD_ITEM}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -526,63 +537,53 @@ export default function Home() {
 
                   {showCharts && (
                     <View style={[styles.chartsContainer, { backgroundColor: theme.card }]}>
-                      <Text style={styles.chartTitle}>{Strings.CHART_SPENDING_BY_CATEGORY}</Text>
-                      <BarChart
-                        data={getBarChartData()}
-                        width={screenWidth - 50}
-                        height={220}
-                        yAxisLabel="R$ "
-                        yAxisSuffix=""
-                        chartConfig={{
-                          backgroundGradientFrom: theme.background,
-                          backgroundGradientTo: theme.background,
-                          decimalPlaces: 2,
-                          color: (opacity) => theme.primary + (opacity * 255).toString(16).padStart(2, '0'),
-                          labelColor: () => theme.text.primary,
-                          style: { borderRadius: 16 },
-                          propsForDots: { r: "6", strokeWidth: "2", stroke: theme.primary },
-                        }}
-                        verticalLabelRotation={45}
-                        style={{ borderRadius: 16, marginVertical: 10, paddingRight: 10 }}
-                        fromZero
-                        showValuesOnTopOfBars
-                      />
+                      <Text style={styles.chartTitle}>Produtos por Valor</Text>
+                      <View style={styles.statisticsList}>
+                        {items
+                          .filter(item => item.got && item.price)
+                          .sort((a, b) => (b.price || 0) - (a.price || 0))
+                          .map((item, index) => (
+                            <View key={item.id} style={styles.statisticsItem}>
+                              <View style={styles.statisticsRank}>
+                                <Text style={styles.statisticsRankText}>#{index + 1}</Text>
+                              </View>
+                              <View style={styles.statisticsContent}>
+                                <Text style={styles.statisticsTitle}>{item.name}</Text>
+                                <Text style={styles.statisticsValue}>
+                                  R$ {item.price?.toFixed(2).replace(".", ",")}
+                                </Text>
+                              </View>
+                            </View>
+                          ))}
+                      </View>
 
-                      <Text style={styles.chartTitle}>{Strings.TITLE_TOP_5_EXPENSIVE}</Text>
-                      <BarChart
-                        data={getProductPriceData()}
-                        width={screenWidth - 50}
-                        height={220}
-                        yAxisLabel="R$ "
-                        yAxisSuffix=""
-                        chartConfig={{
-                          backgroundGradientFrom: theme.background,
-                          backgroundGradientTo: theme.background,
-                          decimalPlaces: 2,
-                          color: (opacity) => theme.primary + (opacity * 255).toString(16).padStart(2, '0'),
-                          labelColor: () => theme.text.primary,
-                          style: { borderRadius: 16 },
-                        }}
-                        verticalLabelRotation={30}
-                        style={{ borderRadius: 16, marginVertical: 10 }}
-                        fromZero
-                        showValuesOnTopOfBars
-                      />
-
-                      <Text style={styles.chartTitle}>{Strings.CHART_ITEMS_BY_CATEGORY}</Text>
-                      <Text style={styles.chartTitle}>{Strings.TITLE_ITEMS_DISTRIBUTION}</Text>
-                      <PieChart
-                        data={getPieChartData()}
-                        width={screenWidth - 50}
-                        height={220}
-                        chartConfig={{
-                          color: (opacity = 1) => theme.text.primary + (opacity * 255).toString(16).padStart(2, '0'),
-                        }}
-                        accessor="population"
-                        backgroundColor="transparent"
-                        paddingLeft="20"
-                        absolute
-                      />
+                      <Text style={[styles.chartTitle, { marginTop: 20 }]}>Itens por Categoria</Text>
+                      <View style={styles.statisticsList}>
+                        {Object.entries(
+                          items.reduce((acc, item) => {
+                            acc[item.type] = (acc[item.type] || 0) + 1;
+                            return acc;
+                          }, {} as Record<string, number>)
+                        )
+                          .sort(([, a], [, b]) => b - a)
+                          .map(([category, count], index) => (
+                            <View key={category} style={styles.statisticsItem}>
+                              <View style={[styles.statisticsRank, { backgroundColor: theme.primary }]}>
+                                <Icon
+                                  name={CATEGORY_ICONS[category] || "label"}
+                                  size={20}
+                                  color={theme.text.inverse}
+                                />
+                              </View>
+                              <View style={styles.statisticsContent}>
+                                <Text style={styles.statisticsTitle}>{category}</Text>
+                                <Text style={styles.statisticsValue}>
+                                  {count} {count === 1 ? 'item' : 'itens'}
+                                </Text>
+                              </View>
+                            </View>
+                          ))}
+                      </View>
                     </View>
                   )}
                 </>
@@ -701,7 +702,7 @@ export default function Home() {
             />
 
             <Text style={styles.inputLabel}>{Strings.TITLE_QUANTITY}</Text>
-              <TextInput
+            <TextInput
               value={quantityInput}
               onChangeText={(text) => {
                 const clean = text.replace(/[^0-9]/g, "");
@@ -722,7 +723,7 @@ export default function Home() {
                   <Text style={styles.saveButtonText}>{Strings.CONFIRM_OK}</Text>
                 </View>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={[styles.deleteButton, { flex: 1 }]}
                 onPress={() => setModalVisible(false)}
@@ -738,7 +739,7 @@ export default function Home() {
       </Modal>
 
       {items.length > 0 && (
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.addButton}
           onPress={() => setAddItemModalVisible(true)}
         >
@@ -791,7 +792,7 @@ function PickerDropdown({
           color="#666"
         />
       </TouchableOpacity>
-      
+
       {open && (
         <Modal
           transparent
@@ -799,12 +800,12 @@ function PickerDropdown({
           visible={open}
           onRequestClose={toggleOpen}
         >
-          <TouchableOpacity 
-            style={{ 
-              flex: 1, 
+          <TouchableOpacity
+            style={{
+              flex: 1,
               backgroundColor: 'rgba(0,0,0,0.5)',
               justifyContent: 'center',
-            }} 
+            }}
             onPress={toggleOpen}
           >
             <View

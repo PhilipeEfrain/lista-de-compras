@@ -1,11 +1,11 @@
+import { createHistoryStyles } from '@/components/styles';
 import { Strings } from '@/constants/Strings';
-import { Theme } from '@/constants/theme';
 import { useTheme } from '@/context/ThemeContext';
 import { ShoppingList } from '@/type/types';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
@@ -266,139 +266,3 @@ export default function History() {
     </SafeAreaView>
   );
 }
-
-const createHistoryStyles = (theme: Theme) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.background,
-  },
-  itemQuantity: {
-    fontSize: 14,
-    color: theme.text.secondary,
-    fontWeight: 'bold',
-    minWidth: 35,
-    marginRight: 8,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.border,
-    backgroundColor: theme.background,
-  },
-  deleteAllButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 8,
-  },
-  deleteAllButtonText: {
-    marginLeft: 8,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  deleteListButton: {
-    padding: 4,
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 4,
-  },
-  backButtonText: {
-    marginLeft: 8,
-    fontSize: 16,
-    color: theme.primary,
-    fontWeight: '500',
-  },
-  content: {
-    padding: 20,
-  },
-  listCard: {
-    backgroundColor: theme.surface,
-    borderRadius: 8,
-    marginBottom: 10,
-    overflow: 'hidden',
-  },
-  listHeader: {
-    padding: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: theme.surface,
-  },
-  listContent: {
-    backgroundColor: theme.card,
-    borderTopWidth: 1,
-    borderTopColor: theme.border,
-    padding: 15,
-  },
-  listTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: theme.text.primary,
-    marginBottom: 4,
-  },
-  listDate: {
-    fontSize: 14,
-    color: theme.text.secondary,
-  },
-  listInfo: {
-    fontSize: 14,
-    color: theme.text.secondary,
-    marginTop: 4,
-  },
-  listTotal: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: theme.primary,
-  },
-  placeholder: {
-    textAlign: 'center',
-    fontSize: 16,
-    color: theme.text.secondary,
-    marginTop: 20,
-  },
-  categoryContainer: {
-    marginBottom: 15,
-  },
-  categoryTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: theme.text.primary,
-    marginBottom: 8,
-  },
-  itemRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 6,
-  },
-  itemName: {
-    fontSize: 14,
-    color: theme.text.primary,
-    flex: 1,
-  },
-  itemPrice: {
-    fontSize: 14,
-    color: theme.text.secondary,
-    marginLeft: 8,
-  },
-  reuseButton: {
-    backgroundColor: theme.success,
-    padding: 12,
-    borderRadius: 6,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 15,
-  },
-  reuseButtonText: {
-    color: theme.text.inverse,
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginLeft: 8,
-  },
-});

@@ -1,26 +1,35 @@
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Drawer } from 'expo-router/drawer';
+import { Tabs } from 'expo-router/tabs';
 import { StatusBar } from 'expo-status-bar';
 import { TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 import { Strings } from '@/constants/Strings';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 
-function DrawerContent() {
+function TabsNavigator() {
   const { isDark, toggleTheme } = useTheme();
 
   return (
-    <Drawer>
-      <Drawer.Screen
+    <Tabs screenOptions={{
+      tabBarActiveTintColor: isDark ? '#80b3ff' : '#1976d2',
+      tabBarInactiveTintColor: isDark ? '#b8b8d1' : '#666666',
+      tabBarStyle: {
+        backgroundColor: isDark ? '#2a2d3d' : '#ffffff',
+        borderTopColor: isDark ? '#4a4f68' : '#e0e0e0',
+      }
+    }}>
+      <Tabs.Screen
         name="index"
         options={{
-          drawerLabel: Strings.DRAWER_CURRENT_LIST,
-          title: Strings.APP_TITLE,
+          title: Strings.DRAWER_CURRENT_LIST,
+          tabBarLabel: "Lista",
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="shopping-cart" size={size} color={color} />
+          ),
           headerRight: () => (
             <TouchableOpacity
               onPress={toggleTheme}
@@ -35,11 +44,14 @@ function DrawerContent() {
           ),
         }}
       />
-      <Drawer.Screen
+      <Tabs.Screen
         name="history"
         options={{
-          drawerLabel: Strings.DRAWER_HISTORY,
           title: Strings.HISTORY_TITLE,
+          tabBarLabel: "Histórico",
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="history" size={size} color={color} />
+          ),
           headerRight: () => (
             <TouchableOpacity
               onPress={toggleTheme}
@@ -54,8 +66,8 @@ function DrawerContent() {
           ),
         }}
       />
-      <Drawer.Screen name="+not-found" options={{ drawerItemStyle: { display: 'none' } }} />
-    </Drawer>
+      <Tabs.Screen name="+not-found" options={{ href: null }} />
+    </Tabs>
   );
 }
 
@@ -82,7 +94,7 @@ function RootLayoutNav() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <NavigationThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-          <DrawerContent />
+          <TabsNavigator />
           <StatusBar style={isDark ? "light" : "dark"} />
         </NavigationThemeProvider>
       </SafeAreaProvider>
