@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.2.0] - 2025-08-26
+
+### Adicionado
+- Instruções para o GitHub Copilot em `.github/copilot/instructions.md`
+- Nova navegação baseada em Tabs (`app/(tabs)/index.tsx`, refatoração de `_layout.tsx`)
+- Suporte aprimorado ao compartilhamento via WhatsApp
+- Novos estilos e componentes para exibição de estatísticas e gráficos simplificados
+
+### Modificado
+- Refatoração de `app/index.tsx` para simplificar lógica, melhorar integração com WhatsApp e remover dependências de gráficos nativos
+- Refatoração de `app/history.tsx` para usar novo sistema de estilos e simplificação de código
+- Atualização de `components/styles.tsx` com novos estilos para estatísticas e histórico
+- Ajustes em `constants/Strings.ts` para melhor suporte a internacionalização e mensagens de compartilhamento
+- Ajustes em `constants/theme.ts` para simplificação e padronização de cores
+
+### Removido
+- Dependências e código de gráficos nativos substituídos por visualização customizada
+
+### Corrigido
+- Pequenas correções de layout e navegação
+- Melhorias na experiência de compartilhamento e feedback visual
+
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
