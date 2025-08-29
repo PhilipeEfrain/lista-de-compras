@@ -66,6 +66,28 @@ function TabsNavigator() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="add-item"
+        options={{
+          title: Strings.TITLE_ADD_ITEM,
+          tabBarLabel: "Adicionar Item",
+          tabBarIcon: ({ size }) => (
+            <Icon name="add" size={size} color="#4caf50" />
+          ),
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={toggleTheme}
+              style={{ marginRight: 15 }}
+            >
+              <Icon
+                name={isDark ? "light-mode" : "dark-mode"}
+                size={24}
+                color={isDark ? "#fff" : "#000"}
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />    
       <Tabs.Screen name="+not-found" options={{ href: null }} />
     </Tabs>
   );

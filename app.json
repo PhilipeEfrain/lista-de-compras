@@ -1,13 +1,14 @@
 {
   "expo": {
-    "name": "Lista de Compras",
-    "slug": "lista-de-compras",
+    "name": "Listou",
+    "slug": "listou",
     "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/shopping-card-svgrepo-com.png",
-    "description": "Aplicativo para gerenciar lista de compras",
+    "description": "Aplicativo Listou - Gerenciador inteligente de listas de compras com categorização, histórico e análise de gastos",
+    "keywords": ["lista de compras", "compras", "supermercado", "economia", "organização", "categorias", "análise de gastos", "histórico", "gerenciador", "planejamento", "orçamento familiar"],
     "primaryColor": "#1976d2",
-    "scheme": "shoppinglist",
+    "scheme": "listou",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true
@@ -18,7 +19,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.philipe_gonzalez.listadecompras",
+      "package": "com.philipe_gonzalez.listou",
       "permissions": []
     },
     "web": {

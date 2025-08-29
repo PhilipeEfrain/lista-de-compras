@@ -1,7 +1,7 @@
 export const Strings = {
-  APP_TITLE: "Lista de Compras",
+  APP_TITLE: "Listou",
   HISTORY_TITLE: "Histórico de Compras",
-  TABS_HOME_TITLE: "Lista de Compras",
+  TABS_HOME_TITLE: "Listou",
 
   BTN_BACK_TO_LIST: "Voltar para Lista",
   BTN_REUSE_LIST: "Reutilizar Lista",
@@ -23,13 +23,21 @@ export const Strings = {
   MSG_SAVED: "Lista salva com sucesso!",
   MSG_DELETED: "Lista deletada com sucesso!",
   MSG_DELETE_CONFIRMATION: "Tem certeza que deseja limpar esta lista?",
+  MSG_ITEM_ALREADY_EXISTS: "Já existe um item com esse nome na lista.",
+  MSG_KEEP_MISSING_ITEMS: "Isso irá manter apenas os itens marcados como faltantes na lista. Deseja continuar?",
+  MSG_FILL_WEIGHT_PRICE: "Preencha o valor por kg e o peso",
   
   CHART_ITEMS_BY_CATEGORY: "Itens por Categoria",
   CHART_SPENDING_BY_CATEGORY: "Gastos por Categoria",
+  CHART_PRODUCTS_BY_VALUE: "Produtos por Valor",
   
   INPUT_ITEM_NAME: "Nome do Item",
   INPUT_ITEM_PRICE: "Preço",
   INPUT_ITEM_CATEGORY: "Categoria",
+  INPUT_ITEM_WEIGHT: "Peso (kg)",
+  INPUT_PRICE_PER_KG: "Valor por kg (R$)",
+  INPUT_UNIT_PRICE: "Preço unitário",
+  INPUT_FILTER_PLACEHOLDER: "Filtrar itens...",
   
   STATUS_GOT: "Obtido",
   STATUS_MISSING: "Faltando",
@@ -40,6 +48,7 @@ export const Strings = {
   CONFIRM_CANCEL: "Cancelar",
   CONFIRM_DELETE: "Deletar",
   CONFIRM_OK: "OK",
+  CONFIRM_CONFIRM: "Confirmar",
   
   ALERT_ERROR: "Erro",
   ALERT_SUCCESS: "Sucesso",
@@ -47,6 +56,7 @@ export const Strings = {
   ALERT_LIST_COMPLETED: "Lista Concluída!",
   ALERT_LIST_SAVED: "Lista Salva!",
   ALERT_LIST_REUSED: "Lista Reutilizada",
+  ALERT_KEEP_MISSING: "Manter apenas itens que faltam",
   
   MSG_ERROR_LOAD_LIST: "Erro ao carregar lista",
   MSG_ERROR_SAVE_LIST: "Erro ao salvar lista",
@@ -63,7 +73,7 @@ export const Strings = {
   MSG_LIST_REUSED: "Os itens foram adicionados à sua lista atual",
   MSG_NO_ITEM_SELECTED: "Item não selecionado para confirmação.",
   
- TITLE_ADD_ITEM: "Adicionar Item",
+  TITLE_ADD_ITEM: "Adicionar Item",
   TITLE_ITEM_NAME: "Nome do Item",
   TITLE_PRODUCT_CATEGORY: "Categoria do Produto",
   TITLE_QUANTITY: "Quantidade",
@@ -72,6 +82,10 @@ export const Strings = {
   TITLE_TOP_5_EXPENSIVE: "Top 5 produtos mais caros",
   TITLE_ITEMS_DISTRIBUTION: "Distribuição de Itens",
   TITLE_ADD_FIRST_ITEM: "Adicione o primeiro item na lista",
+  TITLE_FIXED_PRICE: "Preço fixo",
+  TITLE_PRICE_PER_KG: "Preço por kg",
+  TITLE_WEIGHTED_PRODUCT: "Produto vendido por peso",
+  TITLE_TOTAL: "Total",
   
   TITLE_SAVE_LIST: "Salvar Lista de Compras",
   TITLE_LIST_NAME: "Nome da Lista",
@@ -91,6 +105,6 @@ export const Strings = {
   BTN_SHARE_WHATSAPP: "WhatsApp",
   MSG_ERROR_SHARE_WHATSAPP: "Não foi possível abrir o WhatsApp. Verifique se o aplicativo está instalado.",
   MSG_ERROR_SHARE: "Ocorreu um erro ao tentar compartilhar a lista.",
-  WHATSAPP_LIST_TITLE: "📝 Lista de Compras",
+  WHATSAPP_LIST_TITLE: "📝 Listou - Minha Lista de Compras",
   WHATSAPP_TOTAL_TITLE: "💰 Total"
 }

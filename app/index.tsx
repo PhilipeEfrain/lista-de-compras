@@ -7,7 +7,7 @@ import { Strings } from "@/constants/Strings";
 import { useTheme } from "@/context/ThemeContext";
 import { Item } from "@/type/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
@@ -22,39 +22,24 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-// Função auxiliar para formatar preço com 2 casas decimais
 const formatPrice = (value: string): string => {
-  // Remove todos os caracteres não numéricos
   const numericValue = value.replace(/\D/g, "");
-  
-  // Se não tiver valor, retorna vazio
   if (!numericValue) return "";
-  
-  // Converte para número e divide por 100 para posicionar as casas decimais
   const price = (parseInt(numericValue) / 100).toFixed(2);
-  
-  // Substitui ponto por vírgula para formato brasileiro
   return price.replace(".", ",");
 };
 
-// Função auxiliar para formatar peso com 3 casas decimais
 const formatWeight = (value: string): string => {
-  // Remove todos os caracteres não numéricos
   const numericValue = value.replace(/\D/g, "");
-  
-  // Se não tiver valor, retorna vazio
   if (!numericValue) return "";
-  
-  // Converte para número e divide por 1000 para posicionar as casas decimais
   const weight = (parseInt(numericValue) / 1000).toFixed(3);
-  
-  // Substitui ponto por vírgula para formato brasileiro
   return weight.replace(".", ",");
 };
 
 export default function Home() {
   const { theme } = useTheme();
   const styles = createStyles(theme);
+  const params = useLocalSearchParams();
   const [newItem, setNewItem] = useState("");
   const [newItemQuantity, setNewItemQuantity] = useState("");
   const [selectedType, setSelectedType] = useState(CATEGORIES[0]);
@@ -68,14 +53,28 @@ export default function Home() {
   const [quantityInput, setQuantityInput] = useState("");
   const [listTitle, setListTitle] = useState("");
   const [filter, setFilter] = useState("");
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({}); // Controla quais categorias estão expandidas
-  const [priceType, setPriceType] = useState<'fixed' | 'weight'>('fixed'); // Tipo de preço: fixo ou por peso
-  const [weightInput, setWeightInput] = useState(""); // Peso em kg
-  const [newItemPriceInput, setNewItemPriceInput] = useState(""); // Preço para novo item
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  const [priceType, setPriceType] = useState<'fixed' | 'weight'>('fixed');
+  const [weightInput, setWeightInput] = useState("");
+  const [newItemPriceInput, setNewItemPriceInput] = useState("");
 
   useEffect(() => {
     loadItems();
-  }, []);
+
+    // Processa item da tela de adição de itens (se existir)
+    if (params.newItem) {
+      try {
+        const newItemFromParams = JSON.parse(params.newItem as string) as Item;
+        if (newItemFromParams) {
+          const updatedItems = [...items, newItemFromParams];
+          setItems(updatedItems);
+          saveItems(updatedItems);
+        }
+      } catch (error) {
+        console.error("Erro ao processar novo item:", error);
+      }
+    }
+  }, [params.newItem]);
 
   useFocusEffect(
     useCallback(() => {
@@ -90,10 +89,9 @@ export default function Home() {
         const loadedItems = JSON.parse(json);
         setItems(loadedItems);
 
-        // Inicializa categorias expandidas ao carregar itens
         const categories = Array.from(new Set(loadedItems.map((item: Item) => item.type))) as string[];
         const initialExpanded = categories.reduce<Record<string, boolean>>((acc, category) => {
-          acc[category] = true; // Todas as categorias começam expandidas
+          acc[category] = true;
           return acc;
         }, {});
         setExpandedCategories(initialExpanded);
@@ -117,15 +115,13 @@ export default function Home() {
       Alert.alert(Strings.ALERT_ERROR, Strings.MSG_TYPE_ITEM_NAME);
       return;
     }
-    // Bloqueia nomes repetidos (case-insensitive, ignorando espaços)
     const normalized = (str: string) => str.replace(/\s+/g, '').toLowerCase();
     if (items.some(item => normalized(item.name) === normalized(trimmedName))) {
-      Alert.alert(Strings.ALERT_ERROR, 'Já existe um item com esse nome na lista.');
+      Alert.alert(Strings.ALERT_ERROR, Strings.MSG_ITEM_ALREADY_EXISTS);
       return;
     }
     const quantity = newItemQuantity ? parseInt(newItemQuantity, 10) : 1;
-    
-    // Construir o objeto base do novo item
+
     const newEntry: Item = {
       id: Date.now()?.toString(),
       name: trimmedName,
@@ -135,32 +131,29 @@ export default function Home() {
       quantity: quantity
     };
 
-    // Adicionar preço se for fornecido
     if (newItemPriceInput) {
       const price = parseFloat(newItemPriceInput.replace(",", "."));
       if (!isNaN(price)) {
         newEntry.price = price;
-        newEntry.got = true; // Marcar como obtido se tiver preço
+        newEntry.got = true;
       }
     }
-    
+
     const updated = [...items, newEntry];
     setItems(updated);
     saveItems(updated);
     setNewItem("");
     setNewItemQuantity("");
-    setNewItemPriceInput(""); // Limpar o campo de preço
+    setNewItemPriceInput("");
   }
 
   function openGotModal(id: string) {
     const item = items.find(item => item.id === id);
     setCurrentItemId(id);
     if (item) {
-      // Preencher valores atuais se o item já tiver
       setQuantityInput(item.quantity?.toString().padStart(2, "0") || "01");
-      
+
       if (item.price !== undefined) {
-        // Verifica se tem informações de peso
         if (item.weightInfo) {
           setPriceType('weight');
           setPriceInput(formatPrice(item.weightInfo.pricePerKg.toString().replace(".", ",")));
@@ -187,7 +180,7 @@ export default function Home() {
 
     // Não requer mais preço para o modo fixo
     if (priceType === 'weight' && (!priceInput || !weightInput)) {
-      Alert.alert(Strings.ALERT_ERROR, "Preencha o valor por kg e o peso");
+      Alert.alert(Strings.ALERT_ERROR, Strings.MSG_FILL_WEIGHT_PRICE);
       return;
     }
 
@@ -197,7 +190,6 @@ export default function Home() {
       if (priceType === 'fixed') {
         price = parseFloat(priceInput.replace(",", "."));
       } else {
-        // Cálculo de preço por kg: preço por kg * peso em kg
         const pricePerKg = parseFloat(priceInput.replace(",", "."));
         const weightInKg = parseFloat(weightInput.replace(",", "."));
         price = pricePerKg * weightInKg;
@@ -258,7 +250,6 @@ export default function Home() {
     saveItems(updated);
   }
 
-  // Função para alternar uma categoria entre expandida e colapsada
   const toggleCategory = (category: string) => {
     setExpandedCategories(prev => ({
       ...prev,
@@ -266,13 +257,11 @@ export default function Home() {
     }));
   };
 
-  // Filtrar os itens com base no texto de filtro
   const filteredItems = items.filter(item =>
     item.name.toLowerCase().includes(filter.toLowerCase()) ||
     item.type.toLowerCase().includes(filter.toLowerCase())
   );
 
-  // Obter categorias únicas dos itens filtrados
   const filteredCategories = Array.from(
     new Set(filteredItems.map(item => item.type))
   );
@@ -283,22 +272,21 @@ export default function Home() {
         {
           flexDirection: 'column',
           borderBottomWidth: 1,
-          borderBottomColor: theme.border + '40', // Cor mais leve usando transparência
+          borderBottomColor: theme.border + '40',
           marginHorizontal: 0,
           borderRadius: 10,
           paddingHorizontal: 15,
           paddingVertical: 10,
           marginBottom: 4,
-          backgroundColor: theme.background + '40', // Fundo mais leve
+          backgroundColor: theme.background + '40',
         }
       ]}>
-        {/* Primeira linha: informações do item e botões */}
         <View style={{ flexDirection: 'row', alignItems: "center", justifyContent: "space-between" }}>
           {/* Informações do item (quantidade e nome) */}
           <Text style={styles.itemQuantity}>
             {item.quantity?.toString().padStart(2, '0') || '01'} x
           </Text>
-          
+
           <Text
             style={[
               styles.itemName,
@@ -342,13 +330,13 @@ export default function Home() {
 
         {/* Segunda linha: valor total em negrito */}
         {item.price !== undefined && (
-          <Text style={{ 
-            fontSize: 12, 
-            fontWeight: "bold", 
+          <Text style={{
+            fontSize: 12,
+            fontWeight: "bold",
             color: theme.text.primary,
             marginTop: 1
           }}>
-            Total: R$ {(item.price * (item.quantity || 1)).toFixed(2).replace(".", ",")}
+            {Strings.TITLE_TOTAL}: R$ {(item.price * (item.quantity || 1)).toFixed(2).replace(".", ",")}
             {item.weightInfo && ` (${item.weightInfo.weight.toFixed(3).replace(".", ",")} kg)`}
           </Text>
         )}
@@ -380,16 +368,16 @@ export default function Home() {
         const status = item.got ? "✅" : item.missing ? "❌" : "⭕";
         const quantity = item.quantity?.toString().padStart(2, "0") || "01";
         let priceInfo = "";
-        
+
         if (item.price) {
           priceInfo = ` - R$ ${(item.price * (item.quantity || 1)).toFixed(2).replace(".", ",")}`;
-          
+
           // Adiciona informação de peso se disponível
           if (item.weightInfo) {
             priceInfo += ` (${item.weightInfo.weight.toFixed(3).replace(".", ",")}kg x R$${item.weightInfo.pricePerKg.toFixed(2).replace(".", ",")})`;
           }
         }
-        
+
         text += `${status} ${quantity}x ${item.name}${priceInfo}\n`;
       });
       text += "\n";
@@ -424,18 +412,40 @@ export default function Home() {
     <SafeAreaView style={[styles.container, { paddingHorizontal: 15 }]}>
       <View style={styles.headerContainer}>
         <View style={styles.actionButtons}>
-          <TouchableOpacity
-            style={[styles.historyButton, { flex: 1, marginRight: 8 }]}
-            onPress={() => router.push("history" as any)}
-          >
-            <Icon name="history" size={18} color="#fff" />
-            <Text style={styles.historyButtonText}>{Strings.DRAWER_HISTORY}</Text>
-          </TouchableOpacity>
-
           {items.length > 0 ? (
             <>
               <TouchableOpacity
-                style={[styles.saveButton, { flex: 1, marginHorizontal: 4 }]}
+                style={[{
+                  backgroundColor: '#4caf50', // Verde
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingHorizontal: 15,
+                  paddingVertical: 12,
+                  borderRadius: 10,
+                  gap: 6,
+                  flex: 1,
+                  marginRight: 8
+                }]}
+                onPress={handleShareWhatsApp}
+              >
+                <Icon name="share" size={18} color="#fff" />
+                <Text style={styles.historyButtonText}>{Strings.BTN_SHARE_WHATSAPP}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[{
+                  backgroundColor: theme.primary, // Azul
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingHorizontal: 15,
+                  paddingVertical: 12,
+                  borderRadius: 10,
+                  gap: 6,
+                  flex: 1,
+                  marginHorizontal: 4
+                }]}
                 onPress={() => setSaveListModalVisible(true)}
               >
                 <Icon name="save" size={18} color="#fff" />
@@ -470,18 +480,18 @@ export default function Home() {
               </TouchableOpacity>
             </>
           ) : (
-            <View style={{ flex: 2 }} />
+            <View style={{ flex: 3 }} />
           )}
         </View>
       </View>
 
       {items.length > 0 && (
         <View style={{
-          marginTop: 5, 
+          marginTop: 5,
           marginBottom: 5,
         }}>
-          <View style={{ 
-            flexDirection: 'row', 
+          <View style={{
+            flexDirection: 'row',
             alignItems: 'center',
             backgroundColor: theme.surface,
             borderRadius: 10,
@@ -495,7 +505,7 @@ export default function Home() {
             <TextInput
               value={filter}
               onChangeText={setFilter}
-              placeholder="Filtrar itens..."
+              placeholder={Strings.INPUT_FILTER_PLACEHOLDER}
               placeholderTextColor={theme.text.secondary}
               style={{
                 flex: 1,
@@ -509,11 +519,11 @@ export default function Home() {
               clearButtonMode="while-editing"
             />
             {filter.length > 0 && (
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => setFilter('')}
-                style={{ 
-                  padding: 8, 
-                  width: 36, 
+                style={{
+                  padding: 8,
+                  width: 36,
                   height: 36,
                   alignItems: 'center',
                   justifyContent: 'center'
@@ -604,30 +614,30 @@ export default function Home() {
           <View style={styles.emptyStateContainer}>
             <TouchableOpacity
               style={styles.addButtonCentered}
-              onPress={() => setAddItemModalVisible(true)}
+              onPress={() => router.push('/add-item')}
             >
               <Icon name="add" size={36} color="#fff" />
               <Text style={styles.addButtonText}>{Strings.BTN_ADD_ITEM}</Text>
             </TouchableOpacity>
           </View>
         )}
-        
+
         {items.length > 0 && (
-          <View style={{ padding: 10, paddingBottom: items.length > 0 ? 80 : 10 }}>
+          <View style={{ padding: 10, paddingBottom: 10 }}>
             {items.filter(item => item.missing).length > 0 && (
               <TouchableOpacity
                 style={styles.missingListButton}
                 onPress={() => {
                   Alert.alert(
-                    "Manter apenas itens que faltam",
-                    "Isso irá manter apenas os itens marcados como faltantes na lista. Deseja continuar?",
+                    Strings.TITLE_KEEP_MISSING,
+                    Strings.MSG_KEEP_MISSING_ITEMS,
                     [
                       {
-                        text: "Cancelar",
+                        text: Strings.CONFIRM_CANCEL,
                         style: "cancel"
                       },
                       {
-                        text: "Confirmar",
+                        text: Strings.CONFIRM_CONFIRM,
                         style: "destructive",
                         onPress: () => {
                           const updatedList = items.filter(item => item.missing).map(item => ({
@@ -645,7 +655,7 @@ export default function Home() {
                 }}
               >
                 <Text style={styles.missingListButtonText}>
-                  Manter apenas itens que faltam
+                  {Strings.TITLE_KEEP_MISSING}
                 </Text>
               </TouchableOpacity>
             )}
@@ -664,7 +674,7 @@ export default function Home() {
 
                 {showCharts && (
                   <View style={[styles.chartsContainer, { backgroundColor: theme.card }]}>
-                    <Text style={styles.chartTitle}>Produtos por Valor</Text>
+                    <Text style={styles.chartTitle}>{Strings.CHART_PRODUCTS_BY_VALUE}</Text>
                     <View style={styles.statisticsList}>
                       {items
                         .filter(item => item.got && item.price)
@@ -684,7 +694,7 @@ export default function Home() {
                         ))}
                     </View>
 
-                    <Text style={[styles.chartTitle, { marginTop: 20 }]}>Itens por Categoria</Text>
+                    <Text style={[styles.chartTitle, { marginTop: 20 }]}>{Strings.CHART_ITEMS_BY_CATEGORY}</Text>
                     <View style={styles.statisticsList}>
                       {Object.entries(
                         items.reduce((acc, item) => {
@@ -752,7 +762,7 @@ export default function Home() {
               onChangeText={setNewItem}
               style={styles.itemNameInput}
               returnKeyType="done"
-              placeholder="Digite o nome do item"
+              placeholder={Strings.MSG_TYPE_ITEM_NAME}
               placeholderTextColor={theme.text.secondary}
               autoCapitalize="sentences"
             />
@@ -771,7 +781,7 @@ export default function Home() {
               placeholderTextColor={theme.text.secondary}
             />
 
-            <Text style={styles.inputLabel}>Preço (opcional)</Text>
+            <Text style={styles.inputLabel}>{Strings.INPUT_UNIT_PRICE}</Text>
             <TextInput
               value={newItemPriceInput}
               onChangeText={(text) => {
@@ -895,42 +905,42 @@ export default function Home() {
 
             {/* Opções de tipo de preço */}
             <View style={{ flexDirection: 'row', marginBottom: 15, marginTop: 5 }}>
-              <TouchableOpacity 
-                style={{ 
-                  flexDirection: 'row', 
-                  alignItems: 'center', 
+              <TouchableOpacity
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
                   marginRight: 20,
                   opacity: priceType === 'fixed' ? 1 : 0.6
                 }}
                 onPress={() => setPriceType('fixed')}
               >
-                <Icon 
-                  name={priceType === 'fixed' ? 'radio-button-checked' : 'radio-button-unchecked'} 
-                  size={20} 
-                  color={theme.primary} 
+                <Icon
+                  name={priceType === 'fixed' ? 'radio-button-checked' : 'radio-button-unchecked'}
+                  size={20}
+                  color={theme.primary}
                   style={{ marginRight: 8 }}
                 />
                 <Text style={{ color: theme.text.primary, fontSize: 16 }}>
-                  Preço fixo
+                  {Strings.TITLE_FIXED_PRICE}
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={{ 
-                  flexDirection: 'row', 
+              <TouchableOpacity
+                style={{
+                  flexDirection: 'row',
                   alignItems: 'center',
                   opacity: priceType === 'weight' ? 1 : 0.6
                 }}
                 onPress={() => setPriceType('weight')}
               >
-                <Icon 
-                  name={priceType === 'weight' ? 'radio-button-checked' : 'radio-button-unchecked'} 
-                  size={20} 
-                  color={theme.primary} 
+                <Icon
+                  name={priceType === 'weight' ? 'radio-button-checked' : 'radio-button-unchecked'}
+                  size={20}
+                  color={theme.primary}
                   style={{ marginRight: 8 }}
                 />
                 <Text style={{ color: theme.text.primary, fontSize: 16 }}>
-                  Preço por kg
+                  {Strings.TITLE_PRICE_PER_KG}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -952,7 +962,7 @@ export default function Home() {
               </>
             ) : (
               <>
-                <Text style={styles.inputLabel}>Valor por kg (R$)</Text>
+                <Text style={styles.inputLabel}>{Strings.INPUT_PRICE_PER_KG}</Text>
                 <TextInput
                   value={priceInput}
                   onChangeText={(text) => {
@@ -965,7 +975,7 @@ export default function Home() {
                   returnKeyType="done"
                 />
 
-                <Text style={styles.inputLabel}>Peso (kg)</Text>
+                <Text style={styles.inputLabel}>{Strings.INPUT_ITEM_WEIGHT}</Text>
                 <TextInput
                   value={weightInput}
                   onChangeText={(text) => {
@@ -979,19 +989,19 @@ export default function Home() {
                 />
 
                 {(priceInput && weightInput) ? (
-                  <View style={{ 
-                    flexDirection: 'row', 
-                    alignItems: 'center', 
+                  <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
                     marginTop: 8,
                     marginBottom: 10,
-                    backgroundColor: theme.surface + '60', 
-                    padding: 8, 
-                    borderRadius: 4 
+                    backgroundColor: theme.surface + '60',
+                    padding: 8,
+                    borderRadius: 4
                   }}>
                     <Icon name="calculate" size={20} color={theme.success} style={{ marginRight: 8 }} />
                     <Text style={{ color: theme.text.primary, fontWeight: '500' }}>
-                      Total: R$ {(
-                        parseFloat(priceInput.replace(',', '.')) * 
+                      {Strings.TITLE_TOTAL}: R$ {(
+                        parseFloat(priceInput.replace(',', '.')) *
                         parseFloat(weightInput.replace(',', '.'))
                       ).toFixed(2).replace('.', ',')}
                     </Text>
@@ -1013,7 +1023,7 @@ export default function Home() {
               style={[styles.quantityInput, { color: theme.text.primary, textAlign: 'right' }]}
               returnKeyType="done"
             />
-            
+
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.saveButton, { flex: 1, marginRight: 8 }]}
@@ -1038,15 +1048,6 @@ export default function Home() {
           </View>
         </View>
       </Modal>
-
-      {items.length > 0 && (
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => setAddItemModalVisible(true)}
-        >
-          <Icon name="add" size={30} color="#fff" />
-        </TouchableOpacity>
-      )}
     </SafeAreaView>
   );
 }
@@ -1116,7 +1117,7 @@ function PickerDropdown({
               ]}
             >
               <View style={pickerStyles.optionsHeader}>
-                <Text style={pickerStyles.optionsTitle}>Selecione a Categoria</Text>
+                <Text style={pickerStyles.optionsTitle}>{Strings.TITLE_PRODUCT_CATEGORY}</Text>
               </View>
               <ScrollView
                 style={pickerStyles.optionsContainer}

@@ -5,8 +5,8 @@ import { CATEGORIES } from '@/constants/categories';
 import { Strings } from '@/constants/Strings';
 import { useTheme } from '@/context/ThemeContext';
 import { Item } from '@/type/types';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -15,17 +15,44 @@ const generateId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
 };
 
+const formatPrice = (value: string): string => {
+  const numericValue = value.replace(/\D/g, "");
+  if (!numericValue) return "";
+  const price = (parseInt(numericValue) / 100).toFixed(2);
+  return price.replace(".", ",");
+};
+
+const formatWeight = (value: string): string => {
+  const numericValue = value.replace(/\D/g, "");
+  if (!numericValue) return "";
+  const weight = (parseInt(numericValue) / 1000).toFixed(3);
+  return weight.replace(".", ",");
+};
+
 export default function AddItemScreen() {
   const { theme } = useTheme();
   const styles = createStyles(theme);
 
   const [itemName, setItemName] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
-  const [quantity, setQuantity] = useState('1');
-  const [isWeighted, setIsWeighted] = useState(false);
-  const [weight, setWeight] = useState('');
-  const [pricePerKg, setPricePerKg] = useState('');
-  const [price, setPrice] = useState('');
+  const [quantityInput, setQuantityInput] = useState('1');
+  const [priceType, setPriceType] = useState<'fixed' | 'weight'>('fixed');
+  const [weightInput, setWeightInput] = useState('');
+  const [priceInput, setPriceInput] = useState('');
+
+  const resetFields = useCallback(() => {
+    setItemName('');
+    setQuantityInput('1');
+    setPriceType('fixed');
+    setWeightInput('');
+    setPriceInput('');
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      resetFields();
+    }, [resetFields])
+  );
 
   const handleSaveItem = () => {
     if (!itemName.trim()) {
@@ -33,46 +60,46 @@ export default function AddItemScreen() {
       return;
     }
 
-    const quantityNum = parseFloat(quantity) || 1;
-    let priceNum = 0;
+    const quantity = parseInt(quantityInput, 10) || 1;
+    let price: number | undefined;
 
-    if (isWeighted) {
-      const weightNum = parseFloat(weight);
-      const pricePerKgNum = parseFloat(pricePerKg);
-      
-      if (isNaN(weightNum) || isNaN(pricePerKgNum)) {
-        Alert.alert(Strings.ALERT_ERROR, Strings.MSG_INVALID_VALUES);
-        return;
+    if (priceInput) {
+      if (priceType === 'fixed') {
+        price = parseFloat(priceInput.replace(",", "."));
+      } else {
+        const pricePerKg = parseFloat(priceInput.replace(",", "."));
+        const weightInKg = parseFloat(weightInput.replace(",", "."));
+        
+        if (isNaN(weightInKg) || isNaN(pricePerKg)) {
+          Alert.alert(Strings.ALERT_ERROR, Strings.MSG_FILL_WEIGHT_PRICE);
+          return;
+        }
+        
+        price = pricePerKg * weightInKg;
       }
-      
-      priceNum = weightNum * pricePerKgNum;
-    } else if (price) {
-      priceNum = parseFloat(price);
-      
-      if (isNaN(priceNum)) {
-        Alert.alert(Strings.ALERT_ERROR, Strings.MSG_INVALID_VALUES);
-        return;
-      }
+    }
+
+    if (priceInput && isNaN(price!)) {
+      Alert.alert(Strings.ALERT_ERROR, Strings.MSG_INVALID_VALUES);
+      return;
     }
 
     const newItem: Item = {
       id: generateId(),
       name: itemName.trim(),
       type: category,
-      got: false,
-      missing: true,
-      price: priceNum > 0 ? priceNum : undefined,
-      quantity: quantityNum,
-      ...(isWeighted && {
+      got: price !== undefined,
+      missing: false,
+      price: price,
+      quantity: quantity,
+      ...(priceType === 'weight' && price && {
         weightInfo: {
-          weight: parseFloat(weight),
-          pricePerKg: parseFloat(pricePerKg)
+          weight: parseFloat(weightInput.replace(",", ".")),
+          pricePerKg: parseFloat(priceInput.replace(",", "."))
         }
       })
     };
 
-    // Aqui você adicionaria este item à sua lista em um contexto real
-    // Para fins de demonstração, vamos apenas navegar de volta com o item
     router.navigate({
       pathname: "/",
       params: { newItem: JSON.stringify(newItem) }
@@ -99,6 +126,15 @@ export default function AddItemScreen() {
           </View>
 
           <View style={styles.formGroup}>
+            <Text style={styles.label}>{Strings.TITLE_PRODUCT_CATEGORY}</Text>
+            <CategoryPicker
+              selectedValue={category}
+              onValueChange={setCategory}
+              options={CATEGORIES}
+            />
+          </View>
+
+          <View style={styles.formGroup}>
             <Text style={styles.label}>{Strings.TITLE_ITEM_NAME}</Text>
             <TextInput
               style={styles.input}
@@ -111,72 +147,72 @@ export default function AddItemScreen() {
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>{Strings.TITLE_PRODUCT_CATEGORY}</Text>
-            <CategoryPicker
-              selectedValue={category}
-              onValueChange={setCategory}
-              options={CATEGORIES}
-            />
-          </View>
-
-          <View style={styles.formGroup}>
             <Text style={styles.label}>{Strings.TITLE_QUANTITY}</Text>
             <TextInput
               style={styles.input}
-              value={quantity}
-              onChangeText={setQuantity}
+              value={quantityInput}
+              onChangeText={(text) => {
+                const clean = text.replace(/[^0-9]/g, "");
+                setQuantityInput(clean);
+              }}
               keyboardType="numeric"
               placeholder="1"
               placeholderTextColor={theme.text.secondary}
             />
           </View>
 
-          <Collapsible title="Produto por peso/kg">
+          <Collapsible title={Strings.TITLE_WEIGHTED_PRODUCT}>
             <View style={styles.weightContainer}>
               <View style={styles.toggleContainer}>
-                <Text style={styles.toggleLabel}>Produto vendido por peso</Text>
+                <Text style={styles.toggleLabel}>{Strings.TITLE_WEIGHTED_PRODUCT}</Text>
                 <TouchableOpacity 
-                  style={[styles.toggle, isWeighted && styles.toggleActive]}
-                  onPress={() => setIsWeighted(!isWeighted)}
+                  style={[styles.toggle, priceType === 'weight' && styles.toggleActive]}
+                  onPress={() => setPriceType(priceType === 'fixed' ? 'weight' : 'fixed')}
                 >
-                  <View style={[styles.toggleHandle, isWeighted && styles.toggleHandleActive]} />
+                  <View style={[styles.toggleHandle, priceType === 'weight' && styles.toggleHandleActive]} />
                 </TouchableOpacity>
               </View>
 
-              {isWeighted ? (
+              {priceType === 'weight' ? (
                 <>
                   <View style={styles.formGroup}>
-                    <Text style={styles.label}>Peso (kg)</Text>
+                    <Text style={styles.label}>{Strings.INPUT_ITEM_WEIGHT}</Text>
                     <TextInput
                       style={styles.input}
-                      value={weight}
-                      onChangeText={setWeight}
+                      value={weightInput}
+                      onChangeText={(text) => {
+                        setWeightInput(formatWeight(text));
+                      }}
                       keyboardType="numeric"
-                      placeholder="0.5"
+                      placeholder="0,000"
                       placeholderTextColor={theme.text.secondary}
                     />
                   </View>
                   <View style={styles.formGroup}>
-                    <Text style={styles.label}>Preço por kg</Text>
+                    <Text style={styles.label}>{Strings.INPUT_PRICE_PER_KG}</Text>
                     <TextInput
                       style={styles.input}
-                      value={pricePerKg}
-                      onChangeText={setPricePerKg}
+                      value={priceInput}
+                      onChangeText={(text) => {
+                        setPriceInput(formatPrice(text));
+                      }}
                       keyboardType="numeric"
-                      placeholder="9.90"
+                      placeholder="0,00"
                       placeholderTextColor={theme.text.secondary}
                     />
                   </View>
                 </>
               ) : (
                 <View style={styles.formGroup}>
-                  <Text style={styles.label}>Preço unitário</Text>
+                  <Text style={styles.label}>{Strings.INPUT_UNIT_PRICE}</Text>
                   <TextInput
                     style={styles.input}
-                    value={price}
-                    onChangeText={setPrice}
+                    value={priceInput}
+                    onChangeText={(text) => {
+                      setPriceInput(formatPrice(text));
+                    }}
                     keyboardType="numeric"
-                    placeholder="0.00"
+                    placeholder="0,00"
                     placeholderTextColor={theme.text.secondary}
                   />
                 </View>
@@ -197,6 +233,7 @@ export default function AddItemScreen() {
           style={styles.saveButton}
           onPress={handleSaveItem}
         >
+          <Icon name="add" size={20} color="#fff" style={{ marginRight: 8 }} />
           <Text style={styles.saveButtonText}>{Strings.BTN_ADD_ITEM}</Text>
         </TouchableOpacity>
       </View>
@@ -214,7 +251,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingBottom: 100, // Adicionar espaço para o botão no final
+    paddingBottom: 100,
   },
   header: {
     flexDirection: 'row',
@@ -319,6 +356,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     backgroundColor: theme.primary,
     flex: 1,
     marginLeft: 10,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
