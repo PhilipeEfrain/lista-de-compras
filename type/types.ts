@@ -6,6 +6,10 @@ export type Item = {
   missing: boolean;
   price?: number;
   quantity: number;
+  weightInfo?: {
+    pricePerKg: number;
+    weight: number;
+  };
 };
 
 export type ShoppingList = {

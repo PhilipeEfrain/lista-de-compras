@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.2.2] - 2025-08-28
+
+### Modificado
+- Padronizados os espaçamentos e margens de todos os elementos seguindo o box de total gasto
+- Reorganizado o layout dos itens da lista com valor total em negrito na linha abaixo
+- Ajustada a exibição de informações de peso para maior clareza
+- Melhorada a consistência visual em toda a aplicação
+
+## [1.2.1] - 2025-08-28
+
+### Adicionado
+- Campo de filtro entre o box de valor total e a lista de compras
+- Sistema de acordeão (accordion) para categorias, permitindo expandir ou colapsar cada categoria
+- Indicador visual do número de itens por categoria
+
+### Modificado
+- Melhorada a organização visual das categorias com ícones e contadores
+- Integração do filtro de busca com a lista de itens para pesquisa mais rápida
+- Refatoração do código para melhor manutenção e tipagem TypeScript
+
+### Corrigido
+- Melhorado o sistema de compartilhamento via WhatsApp usando o formato universal (https://wa.me)
+- Tratamento de tipos TypeScript em funções de redução e inicialização
+
 ## [1.2.0] - 2025-08-26
 
 ### Adicionado

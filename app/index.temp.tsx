@@ -10,14 +10,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-  Alert,
-  Linking,
-  Modal,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    Linking,
+    Modal,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -421,21 +421,21 @@ export default function Home() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { paddingHorizontal: 15 }]}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
         <View style={styles.actionButtons}>
           <TouchableOpacity
-            style={[styles.historyButton, { flex: 1, marginRight: 8 }]}
+            style={styles.historyButton}
             onPress={() => router.push("history" as any)}
           >
             <Icon name="history" size={18} color="#fff" />
             <Text style={styles.historyButtonText}>{Strings.DRAWER_HISTORY}</Text>
           </TouchableOpacity>
 
-          {items.length > 0 ? (
+          {items.length > 0 && (
             <>
               <TouchableOpacity
-                style={[styles.saveButton, { flex: 1, marginHorizontal: 4 }]}
+                style={styles.saveButton}
                 onPress={() => setSaveListModalVisible(true)}
               >
                 <Icon name="save" size={18} color="#fff" />
@@ -443,7 +443,7 @@ export default function Home() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.deleteButton, { flex: 1, marginLeft: 8 }]}
+                style={styles.deleteButton}
                 onPress={() => {
                   Alert.alert(
                     Strings.ALERT_DELETE_LIST,
@@ -469,16 +469,14 @@ export default function Home() {
                 <Text style={styles.deleteButtonText}>{Strings.BTN_CLEAR}</Text>
               </TouchableOpacity>
             </>
-          ) : (
-            <View style={{ flex: 2 }} />
           )}
         </View>
       </View>
 
       {items.length > 0 && (
         <View style={{
-          marginTop: 5, 
-          marginBottom: 5,
+          marginTop: 15, 
+          marginBottom: 12,
         }}>
           <View style={{ 
             flexDirection: 'row', 
@@ -487,9 +485,7 @@ export default function Home() {
             borderRadius: 10,
             borderWidth: 1,
             borderColor: theme.border,
-            padding: 8,
-            paddingHorizontal: 15,
-            height: 56,
+            padding: 15,
           }}>
             <Icon name="search" size={20} color={theme.text.secondary} />
             <TextInput
@@ -501,9 +497,8 @@ export default function Home() {
                 flex: 1,
                 color: theme.text.primary,
                 paddingHorizontal: 8,
-                paddingVertical: 4,
+                paddingVertical: 0,
                 fontSize: 16,
-                height: 40,
               }}
               returnKeyType="search"
               clearButtonMode="while-editing"
@@ -511,13 +506,7 @@ export default function Home() {
             {filter.length > 0 && (
               <TouchableOpacity 
                 onPress={() => setFilter('')}
-                style={{ 
-                  padding: 8, 
-                  width: 36, 
-                  height: 36,
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
+                style={{ padding: 10 }}
               >
                 <Icon name="close" size={20} color={theme.text.secondary} />
               </TouchableOpacity>

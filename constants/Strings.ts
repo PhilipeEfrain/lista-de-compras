@@ -15,12 +15,14 @@ export const Strings = {
   BTN_CLEAR_LIST: "Limpar Lista",
   BTN_TOGGLE_CHARTS: "Ver Gráficos",
   BTN_HIDE_CHARTS: "Ocultar Gráficos",
+  BTN_CLEAR: "Limpar",
   
   MSG_EMPTY_LIST: "Sua lista está vazia",
   MSG_LOADING: "Carregando...",
   MSG_ERROR: "Ocorreu um erro",
   MSG_SAVED: "Lista salva com sucesso!",
   MSG_DELETED: "Lista deletada com sucesso!",
+  MSG_DELETE_CONFIRMATION: "Tem certeza que deseja limpar esta lista?",
   
   CHART_ITEMS_BY_CATEGORY: "Itens por Categoria",
   CHART_SPENDING_BY_CATEGORY: "Gastos por Categoria",
