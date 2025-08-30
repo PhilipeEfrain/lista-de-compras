@@ -51,8 +51,15 @@ export const initializeAds = async (): Promise<void> => {
   }
   
   try {
-    // Acessar o MobileAds corretamente
+    // Verificação adicional para builds nativos
     const MobileAds = GoogleMobileAdsModule.default;
+    if (!MobileAds || typeof MobileAds !== 'function') {
+      console.warn('⚠️ Google Mobile Ads não inicializável - usando modo mock');
+      isInitialized = true;
+      isAdsAvailable = false;
+      return;
+    }
+    
     await MobileAds().initialize();
     
     isInitialized = true;
@@ -67,7 +74,8 @@ export const initializeAds = async (): Promise<void> => {
     
   } catch (error) {
     console.error('❌ Erro ao inicializar Google Mobile Ads:', error);
-    // Fallback para modo mock
+    // Fallback para modo mock sem falhar
+    console.log('🔄 Ativando modo mock como fallback');
     isInitialized = true;
     isAdsAvailable = false;
   }
@@ -113,6 +121,12 @@ const RealBannerAd: React.FC<BannerAdProps> = ({ size = 'BANNER', placement = 't
 
   try {
     const { BannerAd, BannerAdSize } = GoogleMobileAdsModule;
+    
+    // Verificação adicional de segurança
+    if (!BannerAd || !BannerAdSize) {
+      throw new Error('Componentes BannerAd não disponíveis');
+    }
+    
     const adSize = size === 'LARGE_BANNER' ? BannerAdSize.LARGE_BANNER : BannerAdSize.BANNER;
 
     return (
@@ -202,6 +216,12 @@ export class InterstitialAdManager {
     
     try {
       const { InterstitialAd, AdEventType } = GoogleMobileAdsModule;
+      
+      // Verificação adicional de segurança
+      if (!InterstitialAd || !AdEventType) {
+        throw new Error('Componentes InterstitialAd não disponíveis');
+      }
+      
       this.interstitial = InterstitialAd.createForAdRequest(ADS_IDS.interstitialId);
       
       this.interstitial.addAdEventListener(AdEventType.LOADED, () => {
@@ -228,8 +248,8 @@ export class InterstitialAdManager {
       this.isLoaded = false;
       this.isLoading = false;
       console.error('❌ Erro ao criar anúncio intersticial:', error);
-      // Fallback para modo mock
-      console.log('🎭 Usando modo mock para intersticial');
+      // Fallback para modo mock - não falhar
+      console.log('🔄 Ativando modo mock para intersticial como fallback');
       this.isLoaded = true;
     }
   }
