@@ -7,20 +7,20 @@ import { CATEGORY_ICONS } from "@/constants/icons";
 import { Strings } from "@/constants/Strings";
 import { usePremium } from "@/context/PremiumContext";
 import { useTheme } from "@/context/ThemeContext";
+import { useInterstitialAd } from "@/hooks/useAds";
 import { Item } from "@/type/types";
-import { InterstitialAdManager } from "@/utils/AdManager";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-  Alert,
-  Linking,
-  Modal,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    Linking,
+    Modal,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -42,6 +42,8 @@ const formatWeight = (value: string): string => {
 export default function Home() {
   const { theme } = useTheme();
   const { isPremium } = usePremium();
+  const { showAd: showShareAd } = useInterstitialAd('share_whatsapp');
+  const { showAd: showSaveAd } = useInterstitialAd('save_list');
   const styles = createStyles(theme);
   const params = useLocalSearchParams();
   const [newItem, setNewItem] = useState("");
@@ -394,12 +396,7 @@ export default function Home() {
     return text;
   }
 
-  // Função para mostrar anúncios intersticiais
-  const showInterstitialAd = () => {
-    if (!isPremium) {
-      InterstitialAdManager.show();
-    }
-  };
+  // Função para mostrar anúncios intersticiais foi substituída pelos hooks useInterstitialAd
 
   async function handleShareWhatsApp() {
     if (!isPremium) {
@@ -419,6 +416,9 @@ export default function Home() {
     }
 
     try {
+      // Mostrar anúncio antes de compartilhar (só para usuários premium)
+      await showShareAd();
+      
       const text = generateWhatsAppText();
       const encodedText = encodeURIComponent(text);
       const whatsappUrl = `https://wa.me/?text=${encodedText}`;
@@ -917,7 +917,7 @@ export default function Home() {
                   setSaveListModalVisible(false);
 
                   // Mostrar anúncio intersticial ao salvar a lista
-                  showInterstitialAd();
+                  showSaveAd();
 
                   Alert.alert(
                     Strings.ALERT_LIST_SAVED,

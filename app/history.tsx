@@ -3,6 +3,7 @@ import { createHistoryStyles } from '@/components/styles';
 import { Strings } from '@/constants/Strings';
 import { usePremium } from '@/context/PremiumContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useInterstitialAd } from '@/hooks/useAds';
 import { ShoppingList } from '@/type/types';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from 'expo-router';
@@ -14,6 +15,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 export default function History() {
   const { theme } = useTheme();
   const { isPremium } = usePremium();
+  const { showAd: showHistoryAd } = useInterstitialAd('view_history');
   const styles = createHistoryStyles(theme);
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
@@ -28,6 +30,9 @@ export default function History() {
     useCallback(() => {
       if (isPremium) {
         loadLists();
+      } else {
+        // Mostrar anúncio ao acessar histórico para usuários não premium
+        showHistoryAd();
       }
     }, [isPremium])
   );
