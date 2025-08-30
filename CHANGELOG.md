@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.0.2] - 2025-08-30
+
+### Corrigido
+- Correção crítica de crashes em builds nativos
+- Configuração adequada dos IDs de aplicativo Google AdMob no `app.json`
+- Melhoria na inicialização defensiva do Google Mobile Ads SDK
+- Tratamento robusto de erros na criação de anúncios intersticiais
+- Verificações de segurança adicionais para módulos não disponíveis
+- Atualização da dependência `@react-navigation/drawer` para versão mais recente
+
+### Melhorado
+- Sistema de fallback aprimorado para modo mock
+- Logs mais detalhados para troubleshooting
+- Validação de componentes antes da inicialização
+- Gerenciamento de estado mais seguro para anúncios intersticiais
+
+### Técnico
+- Implementação de verificações de nulidade no AdManager
+- Melhor separação entre modo desenvolvimento e produção
+- IDs de teste corretos configurados para evitar crashes
+
 ## [2.0.1] - 2025-08-30
 
 ### Corrigido
