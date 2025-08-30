@@ -593,7 +593,7 @@ export default function Home() {
         {filteredCategories.length > 0 ? (
           filteredCategories.map(category => {
             const categoryItems = filteredItems.filter((item: Item) => item.type === category);
-            const isExpanded = expandedCategories[category] !== false; // Padrão: expandido se não especificado
+            const isExpanded = expandedCategories[category] !== false;
 
             return (
               <View key={category} style={[styles.categoryGroup, {

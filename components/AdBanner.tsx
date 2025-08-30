@@ -11,8 +11,6 @@ interface AdBannerProps {
 
 export default function AdBanner({ placement = 'bottom' }: AdBannerProps) {
   const { isPremium } = usePremium();
-
-  // Se for usuário premium, não mostra anúncios
   if (isPremium) {
     return null;
   }
@@ -35,7 +33,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 5,
   },
   topBanner: {
     marginBottom: 10,
