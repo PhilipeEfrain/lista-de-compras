@@ -2,13 +2,16 @@ import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } fro
 import { useFonts } from 'expo-font';
 import { Tabs } from 'expo-router/tabs';
 import { StatusBar } from 'expo-status-bar';
-import { TouchableOpacity } from 'react-native';
+import { useEffect } from 'react';
+import { TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 import { Strings } from '@/constants/Strings';
+import { PremiumProvider } from '@/context/PremiumContext';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
+import { initializeAds } from '@/utils/AdManager';
 
 function TabsNavigator() {
   const { isDark, toggleTheme } = useTheme();
@@ -87,6 +90,28 @@ function TabsNavigator() {
             </TouchableOpacity>
           ),
         }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: "Configurações",
+          tabBarLabel: "Configurações",
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="settings" size={size} color={color} />
+          ),
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={toggleTheme}
+              style={{ marginRight: 15 }}
+            >
+              <Icon
+                name={isDark ? "light-mode" : "dark-mode"}
+                size={24}
+                color={isDark ? "#fff" : "#000"}
+              />
+            </TouchableOpacity>
+          ),
+        }}
       />    
       <Tabs.Screen name="+not-found" options={{ href: null }} />
     </Tabs>
@@ -98,13 +123,20 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
+  useEffect(() => {
+    // Inicializar anúncios quando o aplicativo for carregado
+    initializeAds();
+  }, []);
+
   if (!loaded) {
     return null;
   }
 
   return (
     <ThemeProvider>
-      <RootLayoutNav />
+      <PremiumProvider>
+        <RootLayoutNav />
+      </PremiumProvider>
     </ThemeProvider>
   );
 }
@@ -116,8 +148,10 @@ function RootLayoutNav() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <NavigationThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-          <TabsNavigator />
-          <StatusBar style={isDark ? "light" : "dark"} />
+          <View style={{ flex: 1 }}>
+            <TabsNavigator />
+            <StatusBar style={isDark ? "light" : "dark"} />
+          </View>
         </NavigationThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

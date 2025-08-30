@@ -1,11 +1,14 @@
+import AdBanner from "@/components/AdBanner";
 import { CategoryPicker } from "@/components/CategoryPicker";
 import { pickerStyles } from "@/components/pickerStyles";
 import { createStyles } from "@/components/styles";
 import { CATEGORIES } from "@/constants/categories";
 import { CATEGORY_ICONS } from "@/constants/icons";
 import { Strings } from "@/constants/Strings";
+import { usePremium } from "@/context/PremiumContext";
 import { useTheme } from "@/context/ThemeContext";
 import { Item } from "@/type/types";
+import { InterstitialAdManager } from "@/utils/AdManager";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
@@ -38,6 +41,7 @@ const formatWeight = (value: string): string => {
 
 export default function Home() {
   const { theme } = useTheme();
+  const { isPremium } = usePremium();
   const styles = createStyles(theme);
   const params = useLocalSearchParams();
   const [newItem, setNewItem] = useState("");
@@ -390,7 +394,30 @@ export default function Home() {
     return text;
   }
 
+  // Função para mostrar anúncios intersticiais
+  const showInterstitialAd = () => {
+    if (!isPremium) {
+      InterstitialAdManager.show();
+    }
+  };
+
   async function handleShareWhatsApp() {
+    if (!isPremium) {
+      // Se não for premium, mostra mensagem para obter premium
+      Alert.alert(
+        Strings.PREMIUM_REQUIRED_TITLE,
+        Strings.PREMIUM_WHATSAPP_MESSAGE,
+        [
+          { text: Strings.CONFIRM_CANCEL },
+          {
+            text: Strings.BTN_GET_PREMIUM,
+            onPress: () => router.push('/settings')
+          }
+        ]
+      );
+      return;
+    }
+
     try {
       const text = generateWhatsAppText();
       const encodedText = encodeURIComponent(text);
@@ -410,6 +437,9 @@ export default function Home() {
 
   return (
     <SafeAreaView style={[styles.container, { paddingHorizontal: 15 }]}>
+      {/* Banner de anúncio no topo */}
+      <AdBanner placement="top" />
+      
       <View style={styles.headerContainer}>
         <View style={styles.actionButtons}>
           {items.length > 0 ? (
@@ -429,6 +459,9 @@ export default function Home() {
                 }]}
                 onPress={handleShareWhatsApp}
               >
+                {!isPremium && (
+                  <Icon name="lock" size={14} color="#ffffff" style={{ marginRight: 2 }} />
+                )}
                 <Icon name="share" size={18} color="#fff" />
                 <Text style={styles.historyButtonText}>{Strings.BTN_SHARE_WHATSAPP}</Text>
               </TouchableOpacity>
@@ -446,8 +479,28 @@ export default function Home() {
                   flex: 1,
                   marginHorizontal: 4
                 }]}
-                onPress={() => setSaveListModalVisible(true)}
+                onPress={() => {
+                  if (!isPremium) {
+                    // Se não for premium, mostra mensagem para obter premium
+                    Alert.alert(
+                      Strings.PREMIUM_REQUIRED_TITLE,
+                      Strings.PREMIUM_SAVE_LIST_MESSAGE,
+                      [
+                        { text: Strings.CONFIRM_CANCEL },
+                        {
+                          text: Strings.BTN_GET_PREMIUM,
+                          onPress: () => router.push('/settings')
+                        }
+                      ]
+                    );
+                  } else {
+                    setSaveListModalVisible(true);
+                  }
+                }}
               >
+                {!isPremium && (
+                  <Icon name="lock" size={14} color="#ffffff" style={{ marginRight: 2 }} />
+                )}
                 <Icon name="save" size={18} color="#fff" />
                 <Text style={styles.saveButtonText}>{Strings.BTN_SAVE_LIST}</Text>
               </TouchableOpacity>
@@ -863,6 +916,9 @@ export default function Home() {
                   await AsyncStorage.setItem("@shopping_list", JSON.stringify([]));
                   setSaveListModalVisible(false);
 
+                  // Mostrar anúncio intersticial ao salvar a lista
+                  showInterstitialAd();
+
                   Alert.alert(
                     Strings.ALERT_LIST_SAVED,
                     Strings.MSG_LIST_MOVED_HISTORY,
@@ -1048,6 +1104,9 @@ export default function Home() {
           </View>
         </View>
       </Modal>
+      
+      {/* Banner de anúncio no rodapé */}
+      <AdBanner placement="bottom" />
     </SafeAreaView>
   );
 }

@@ -1,10 +1,13 @@
+import AdBanner from '@/components/AdBanner';
 import { CategoryPicker } from '@/components/CategoryPicker';
 import { Collapsible } from '@/components/Collapsible';
 import { ThemedView } from '@/components/ThemedView';
 import { CATEGORIES } from '@/constants/categories';
 import { Strings } from '@/constants/Strings';
+import { usePremium } from '@/context/PremiumContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Item } from '@/type/types';
+import { InterstitialAdManager } from '@/utils/AdManager';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -31,6 +34,7 @@ const formatWeight = (value: string): string => {
 
 export default function AddItemScreen() {
   const { theme } = useTheme();
+  const { isPremium } = usePremium();
   const styles = createStyles(theme);
 
   const [itemName, setItemName] = useState('');
@@ -84,6 +88,11 @@ export default function AddItemScreen() {
       return;
     }
 
+    // Mostrar anúncio intersticial quando adicionar um novo item
+    if (!isPremium) {
+      InterstitialAdManager.show();
+    }
+
     const newItem: Item = {
       id: generateId(),
       name: itemName.trim(),
@@ -112,6 +121,9 @@ export default function AddItemScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
+      {/* Banner de anúncio no topo */}
+      <AdBanner placement="top" />
+      
       <ScrollView style={styles.scrollView}>
         <ThemedView style={styles.content}>
           <View style={styles.header}>
@@ -222,6 +234,9 @@ export default function AddItemScreen() {
         </ThemedView>
       </ScrollView>
       
+      {/* Banner de anúncio no rodapé */}
+      <AdBanner placement="bottom" />
+      
       <View style={styles.footer}>
         <TouchableOpacity 
           style={styles.cancelButton}
@@ -248,6 +263,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    marginBottom: 70, // Ajuste para garantir espaço para o footer e o banner de anúncio
   },
   content: {
     padding: 20,

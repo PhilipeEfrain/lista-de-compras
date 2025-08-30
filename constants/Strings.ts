@@ -106,5 +106,11 @@ export const Strings = {
   MSG_ERROR_SHARE_WHATSAPP: "Não foi possível abrir o WhatsApp. Verifique se o aplicativo está instalado.",
   MSG_ERROR_SHARE: "Ocorreu um erro ao tentar compartilhar a lista.",
   WHATSAPP_LIST_TITLE: "📝 Listou - Minha Lista de Compras",
-  WHATSAPP_TOTAL_TITLE: "💰 Total"
+  WHATSAPP_TOTAL_TITLE: "💰 Total",
+  
+  PREMIUM_REQUIRED_TITLE: "Recurso Premium",
+  PREMIUM_HISTORY_MESSAGE: "Torne-se premium para ter acesso ao histórico de listas",
+  PREMIUM_WHATSAPP_MESSAGE: "Torne-se premium para compartilhar listas no WhatsApp",
+  PREMIUM_SAVE_LIST_MESSAGE: "Torne-se premium para salvar listas no histórico",
+  BTN_GET_PREMIUM: "Obter Premium"
 }
