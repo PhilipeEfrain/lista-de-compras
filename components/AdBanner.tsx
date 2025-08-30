@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   bottomBanner: {
-    marginTop: 10,
+    marginTop: 5,
+    marginBottom: 5,
   },
 });

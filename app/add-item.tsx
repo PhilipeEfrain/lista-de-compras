@@ -234,23 +234,25 @@ export default function AddItemScreen() {
         </ThemedView>
       </ScrollView>
       
-      {/* Banner de anúncio no rodapé */}
-      <AdBanner placement="bottom" />
-      
-      <View style={styles.footer}>
-        <TouchableOpacity 
-          style={styles.cancelButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.cancelButtonText}>{Strings.CONFIRM_CANCEL}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.saveButton}
-          onPress={handleSaveItem}
-        >
-          <Icon name="add" size={20} color="#fff" style={{ marginRight: 8 }} />
-          <Text style={styles.saveButtonText}>{Strings.BTN_ADD_ITEM}</Text>
-        </TouchableOpacity>
+      <View style={styles.footerContainer}>
+        {/* Banner de anúncio no rodapé */}
+        <AdBanner placement="bottom" />
+        
+        <View style={styles.footer}>
+          <TouchableOpacity 
+            style={styles.cancelButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.cancelButtonText}>{Strings.CONFIRM_CANCEL}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.saveButton}
+            onPress={handleSaveItem}
+          >
+            <Icon name="add" size={20} color="#fff" style={{ marginRight: 8 }} />
+            <Text style={styles.saveButtonText}>{Strings.BTN_ADD_ITEM}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </KeyboardAvoidingView>
   );
@@ -263,7 +265,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    marginBottom: 70, // Ajuste para garantir espaço para o footer e o banner de anúncio
+    marginBottom: 120,
   },
   content: {
     padding: 20,
@@ -337,11 +339,14 @@ const createStyles = (theme: any) => StyleSheet.create({
   toggleHandleActive: {
     transform: [{ translateX: 20 }],
   },
-  footer: {
+  footerContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
+    backgroundColor: theme.background,
+  },
+  footer: {
     backgroundColor: theme.background,
     paddingHorizontal: 20,
     paddingVertical: 12,

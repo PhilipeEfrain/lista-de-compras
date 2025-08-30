@@ -23,7 +23,7 @@ export default function SettingsScreen() {
       if (!isPremium) {
         Alert.alert(
           "Versão Premium Ativada",
-          "Parabéns! Você ativou a versão premium do Listou. Agora você pode usar o aplicativo sem anúncios.",
+          "Parabéns! Você ativou a versão premium do Listou. Agora você pode usar o aplicativo sem anúncios. Todas as outras funcionalidades continuam disponíveis gratuitamente.",
           [{ text: "OK" }]
         );
       } else {
@@ -57,7 +57,7 @@ export default function SettingsScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={settingsStyles.settingLabel}>Remover Anúncios</Text>
                 <Text style={settingsStyles.settingDescription}>
-                  Ative a versão premium para usar o app sem anúncios
+                  Ative a versão premium para remover anúncios. Todas as funcionalidades são gratuitas!
                 </Text>
               </View>
               <Switch
