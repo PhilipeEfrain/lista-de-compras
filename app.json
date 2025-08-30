@@ -2,7 +2,7 @@
   "expo": {
     "name": "Listou",
     "slug": "lista-de-compras",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/shopping-card-svgrepo-com.png",
     "description": "Aplicativo Listou - Gerenciador inteligente de listas de compras com categorização, histórico e análise de gastos",

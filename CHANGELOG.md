@@ -1,5 +1,79 @@
 # Changelog
 
+## [2.0.1] - 2025-08-30
+
+### Corrigido
+- Correção dos IDs de aplicativo do Google AdMob no `app.json`
+- Implementação de fallback robusto para desenvolvimento sem Google Mobile Ads
+- Melhoria na tipagem TypeScript do sistema de anúncios
+- Tratamento adequado de erros na inicialização dos anúncios
+- Logs mais informativos para debug do sistema de anúncios
+
+### Adicionado
+- Documentação detalhada sobre configuração do Google AdMob (`CONFIGURACAO_ADMOB.md`)
+- Sistema de detecção de ambiente mais robusto
+- Validação de disponibilidade do módulo Google Mobile Ads
+- Status detalhado dos anúncios intersticiais
+
+## [2.0.0] - 2025-08-30
+
+### Adicionado
+- **Sistema completo de anúncios Google AdMob**
+  - Banners superiores e inferiores nas telas principais
+  - Anúncios intersticiais em ações específicas (salvar lista, compartilhar, visualizar histórico)
+  - Sistema de cooldown (30 segundos entre anúncios intersticiais)
+  - Limite de anúncios por sessão (máximo 5 intersticiais)
+  - Pré-carregamento automático de anúncios
+
+- **Configuração por ambiente**
+  - IDs de teste para desenvolvimento (Google AdMob oficial)
+  - IDs de produção configuráveis
+  - Detecção automática de ambiente (`__DEV__`)
+  - Fallback para modo mock durante desenvolvimento
+
+- **Hooks personalizados para anúncios**
+  - `useAds()` - Hook principal para gerenciamento de anúncios
+  - `useInterstitialAd(trigger)` - Hook específico para anúncios intersticiais
+  - Status em tempo real dos anúncios
+  - Controle automático baseado no status Premium
+
+- **Sistema de triggers para anúncios intersticiais**
+  - `save_list` - Ao salvar lista no histórico
+  - `share_whatsapp` - Ao compartilhar via WhatsApp (usuários premium)
+  - `view_history` - Ao acessar o histórico
+  - `app_background` - Quando app vai para segundo plano
+
+- **Integração com sistema Premium**
+  - Anúncios completamente removidos para usuários premium
+  - Verificação automática do status premium
+  - Mensagens promocionais para upgrade premium
+
+- **Componentes de anúncios**
+  - `AdBanner` - Componente reutilizável para banners
+  - `TopBannerAd` e `BottomBannerAd` - Componentes específicos
+  - Integração responsiva com o tema atual
+  - Fallback visual durante carregamento
+
+### Modificado
+- Atualização da versão do aplicativo para 2.0.0
+- Integração de anúncios nas telas principais (`index.tsx`, `history.tsx`)
+- Melhoria na tipagem TypeScript em todos os componentes de anúncios
+- Atualização do `app.json` com configurações do Google Mobile Ads
+- Refatoração do sistema de inicialização de anúncios
+
+### Adicionado - Documentação
+- `ANUNCIOS.md` - Documentação completa do sistema de anúncios
+- `CONFIGURACAO_ADMOB.md` - Guia detalhado para configuração do Google AdMob
+- Atualização do `README.md` com informações sobre anúncios
+- Logs detalhados para debug e monitoramento
+
+### Técnico
+- Configuração do plugin `react-native-google-mobile-ads` no Expo
+- Sistema de gerenciamento de estado para anúncios
+- Tratamento robusto de erros e fallbacks
+- Otimizações de performance com pré-carregamento
+- Suporte completo ao desenvolvimento em Expo Go (modo mock)
+
 ## [1.2.2] - 2025-08-28
 
 ### Modificado
