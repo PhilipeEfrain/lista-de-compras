@@ -1,4 +1,5 @@
 import { ADS_IDS, ADS_SETTINGS, getEnvironment } from '@/constants/ads';
+import { shouldShowAds } from '@/constants/config';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -42,6 +43,14 @@ let isInitialized = false;
 export const initializeAds = async (): Promise<void> => {
   if (isInitialized) return;
   
+  // Verificar se os anúncios devem estar habilitados
+  if (!shouldShowAds()) {
+    console.log('🚫 Anúncios desabilitados pela configuração');
+    isInitialized = true;
+    isAdsAvailable = false;
+    return;
+  }
+  
   console.log(`🚀 Inicializando anúncios - Ambiente: ${getEnvironment()}`);
   
   if (!isAdsAvailable || !GoogleMobileAdsModule) {
@@ -60,7 +69,13 @@ export const initializeAds = async (): Promise<void> => {
       return;
     }
     
-    await MobileAds().initialize();
+    // Inicialização com tratamento de erro mais robusto
+    const adsInstance = MobileAds();
+    if (adsInstance && typeof adsInstance.initialize === 'function') {
+      await adsInstance.initialize();
+    } else {
+      throw new Error('Método initialize não disponível');
+    }
     
     isInitialized = true;
     console.log('✅ Google Mobile Ads inicializado com sucesso');
@@ -172,7 +187,7 @@ const RealBannerAd: React.FC<BannerAdProps> = ({ size = 'BANNER', placement = 't
 
 // Para anúncios de banner no topo
 export const TopBannerAd: React.FC<AdComponentProps> = ({ showAd = true }) => {
-  if (!showAd) return null;
+  if (!showAd || !shouldShowAds()) return null;
   
   // Em desenvolvimento, mostrar mock
   if (__DEV__ && getEnvironment() === 'development') {
@@ -184,7 +199,7 @@ export const TopBannerAd: React.FC<AdComponentProps> = ({ showAd = true }) => {
 
 // Para anúncios de banner no rodapé
 export const BottomBannerAd: React.FC<AdComponentProps> = ({ showAd = true }) => {
-  if (!showAd) return null;
+  if (!showAd || !shouldShowAds()) return null;
   
   // Em desenvolvimento, mostrar mock
   if (__DEV__ && getEnvironment() === 'development') {

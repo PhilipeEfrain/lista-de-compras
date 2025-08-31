@@ -1,3 +1,4 @@
+import { MaterialIcons } from '@expo/vector-icons';
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Tabs } from 'expo-router/tabs';
@@ -6,7 +7,6 @@ import { useEffect } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Icon from "react-native-vector-icons/MaterialIcons";
 
 import { Strings } from '@/constants/Strings';
 import { PremiumProvider } from '@/context/PremiumContext';
@@ -31,14 +31,14 @@ function TabsNavigator() {
           title: Strings.DRAWER_CURRENT_LIST,
           tabBarLabel: "Lista",
           tabBarIcon: ({ color, size }) => (
-            <Icon name="shopping-cart" size={size} color={color} />
+            <MaterialIcons name="shopping-cart" size={size} color={color} />
           ),
           headerRight: () => (
             <TouchableOpacity
               onPress={toggleTheme}
               style={{ marginRight: 15 }}
             >
-              <Icon
+              <MaterialIcons
                 name={isDark ? "light-mode" : "dark-mode"}
                 size={24}
                 color={isDark ? "#fff" : "#000"}
@@ -53,14 +53,14 @@ function TabsNavigator() {
           title: Strings.HISTORY_TITLE,
           tabBarLabel: "Histórico",
           tabBarIcon: ({ color, size }) => (
-            <Icon name="history" size={size} color={color} />
+            <MaterialIcons name="history" size={size} color={color} />
           ),
           headerRight: () => (
             <TouchableOpacity
               onPress={toggleTheme}
               style={{ marginRight: 15 }}
             >
-              <Icon
+              <MaterialIcons
                 name={isDark ? "light-mode" : "dark-mode"}
                 size={24}
                 color={isDark ? "#fff" : "#000"}
@@ -75,14 +75,14 @@ function TabsNavigator() {
           title: Strings.TITLE_ADD_ITEM,
           tabBarLabel: "Adicionar Item",
           tabBarIcon: ({ size }) => (
-            <Icon name="add" size={size} color="#4caf50" />
+            <MaterialIcons name="add" size={size} color="#4caf50" />
           ),
           headerRight: () => (
             <TouchableOpacity
               onPress={toggleTheme}
               style={{ marginRight: 15 }}
             >
-              <Icon
+              <MaterialIcons
                 name={isDark ? "light-mode" : "dark-mode"}
                 size={24}
                 color={isDark ? "#fff" : "#000"}
@@ -97,14 +97,14 @@ function TabsNavigator() {
           title: "Configurações",
           tabBarLabel: "Configurações",
           tabBarIcon: ({ color, size }) => (
-            <Icon name="settings" size={size} color={color} />
+            <MaterialIcons name="settings" size={size} color={color} />
           ),
           headerRight: () => (
             <TouchableOpacity
               onPress={toggleTheme}
               style={{ marginRight: 15 }}
             >
-              <Icon
+              <MaterialIcons
                 name={isDark ? "light-mode" : "dark-mode"}
                 size={24}
                 color={isDark ? "#fff" : "#000"}
@@ -124,8 +124,19 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    // Inicializar anúncios quando o aplicativo for carregado
-    initializeAds();
+    // Inicializar anúncios de forma assíncrona e segura
+    const initAds = async () => {
+      try {
+        await initializeAds();
+      } catch (error) {
+        console.warn('Erro ao inicializar anúncios, continuando sem eles:', error);
+      }
+    };
+    
+    // Aguardar um pouco antes de inicializar anúncios
+    const timeout = setTimeout(initAds, 2000);
+    
+    return () => clearTimeout(timeout);
   }, []);
 
   if (!loaded) {
