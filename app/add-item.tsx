@@ -4,14 +4,12 @@ import { Collapsible } from '@/components/Collapsible';
 import { ThemedView } from '@/components/ThemedView';
 import { CATEGORIES } from '@/constants/categories';
 import { Strings } from '@/constants/Strings';
-import { usePremium } from '@/context/PremiumContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Item } from '@/type/types';
-import { InterstitialAdManager } from '@/utils/AdManager';
+import { MaterialIcons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 
 // Função para gerar ID único
 const generateId = (): string => {
@@ -34,7 +32,6 @@ const formatWeight = (value: string): string => {
 
 export default function AddItemScreen() {
   const { theme } = useTheme();
-  const { isPremium } = usePremium();
   const styles = createStyles(theme);
 
   const [itemName, setItemName] = useState('');
@@ -88,11 +85,6 @@ export default function AddItemScreen() {
       return;
     }
 
-    // Mostrar anúncio intersticial quando adicionar um novo item
-    if (!isPremium) {
-      InterstitialAdManager.show();
-    }
-
     const newItem: Item = {
       id: generateId(),
       name: itemName.trim(),
@@ -131,7 +123,7 @@ export default function AddItemScreen() {
               style={styles.backButton}
               onPress={() => router.back()}
             >
-              <Icon name="arrow-back" size={24} color={theme.text.primary} />
+              <MaterialIcons name="arrow-back" size={24} color={theme.text.primary} />
             </TouchableOpacity>
             <Text style={styles.title}>{Strings.TITLE_ADD_ITEM}</Text>
             <View style={styles.placeholder} />
@@ -249,7 +241,7 @@ export default function AddItemScreen() {
             style={styles.saveButton}
             onPress={handleSaveItem}
           >
-            <Icon name="add" size={20} color="#fff" style={{ marginRight: 8 }} />
+            <MaterialIcons name="add" size={20} color="#fff" style={{ marginRight: 8 }} />
             <Text style={styles.saveButtonText}>{Strings.BTN_ADD_ITEM}</Text>
           </TouchableOpacity>
         </View>

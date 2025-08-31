@@ -1,9 +1,7 @@
 import AdBanner from '@/components/AdBanner';
 import { createHistoryStyles } from '@/components/styles';
 import { Strings } from '@/constants/Strings';
-import { usePremium } from '@/context/PremiumContext';
 import { useTheme } from '@/context/ThemeContext';
-import { useInterstitialAd } from '@/hooks/useAds';
 import { ShoppingList } from '@/type/types';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from 'expo-router';
@@ -14,27 +12,18 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 
 export default function History() {
   const { theme } = useTheme();
-  const { isPremium } = usePremium();
-  const { showAd: showHistoryAd } = useInterstitialAd('view_history');
   const styles = createHistoryStyles(theme);
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
 
   useEffect(() => {
-    if (isPremium) {
-      loadLists();
-    }
-  }, [isPremium]);
+    loadLists();
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
-      if (isPremium) {
-        loadLists();
-      } else {
-        // Mostrar anúncio ao acessar histórico para usuários não premium
-        showHistoryAd();
-      }
-    }, [isPremium])
+      loadLists();
+    }, [])
   );
 
   async function loadLists() {
@@ -146,7 +135,7 @@ export default function History() {
           <Icon name="arrow-back" size={24} color={theme.primary} />
           <Text style={styles.backButtonText}>{Strings.BTN_BACK_TO_LIST}</Text>
         </TouchableOpacity>
-        {isPremium && lists.length > 0 && (
+        {lists.length > 0 && (
           <TouchableOpacity
             style={styles.deleteAllButton}
             onPress={() => {
@@ -175,30 +164,16 @@ export default function History() {
         )}
       </View>
 
-      {!isPremium ? (
-        <View style={styles.premiumMessageContainer}>
-          <Icon name="lock" size={70} color={theme.primary} />
-          <Text style={styles.premiumTitle}>{Strings.PREMIUM_REQUIRED_TITLE}</Text>
-          <Text style={styles.premiumMessage}>{Strings.PREMIUM_HISTORY_MESSAGE}</Text>
-          <TouchableOpacity
-            style={styles.getPremiumButton}
-            onPress={() => router.push('/settings')}
-          >
-            <Icon name="star" size={20} color={theme.text.inverse} />
-            <Text style={styles.getPremiumButtonText}>{Strings.BTN_GET_PREMIUM}</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={lists}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.content}
-          ListEmptyComponent={
-            <Text style={styles.placeholder}>
-              {Strings.MSG_EMPTY_LIST}
-            </Text>
-          }
-          renderItem={({ item }) => (
+      <FlatList
+        data={lists}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.content}
+        ListEmptyComponent={
+          <Text style={styles.placeholder}>
+            {Strings.MSG_EMPTY_LIST}
+          </Text>
+        }
+        renderItem={({ item }) => (
           <View style={styles.listCard}>
             <TouchableOpacity
               style={styles.listHeader}
@@ -293,7 +268,6 @@ export default function History() {
           </View>
         )}
       />
-      )}
       
       {/* Banner de anúncio no rodapé */}
       <AdBanner placement="bottom" />

@@ -5,25 +5,24 @@ import { createStyles } from "@/components/styles";
 import { CATEGORIES } from "@/constants/categories";
 import { CATEGORY_ICONS } from "@/constants/icons";
 import { Strings } from "@/constants/Strings";
-import { usePremium } from "@/context/PremiumContext";
 import { useTheme } from "@/context/ThemeContext";
-import { useInterstitialAd } from "@/hooks/useAds";
 import { Item } from "@/type/types";
+import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-    Alert,
-    Linking,
-    Modal,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  Linking,
+  Modal,
+  ScrollView,
+  Share,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Icon from "react-native-vector-icons/MaterialIcons";
 
 const formatPrice = (value: string): string => {
   const numericValue = value.replace(/\D/g, "");
@@ -41,9 +40,6 @@ const formatWeight = (value: string): string => {
 
 export default function Home() {
   const { theme } = useTheme();
-  const { isPremium } = usePremium();
-  const { showAd: showShareAd } = useInterstitialAd('share_whatsapp');
-  const { showAd: showSaveAd } = useInterstitialAd('save_list');
   const styles = createStyles(theme);
   const params = useLocalSearchParams();
   const [newItem, setNewItem] = useState("");
@@ -308,7 +304,7 @@ export default function Home() {
             onPress={() => openGotModal(item.id)}
             style={styles.actionButton}
           >
-            <Icon
+            <MaterialIcons
               name="check"
               size={24}
               color={item.got ? theme.success : theme.text.secondary}
@@ -319,7 +315,7 @@ export default function Home() {
             onPress={() => toggleMissing(item.id)}
             style={styles.actionButton}
           >
-            <Icon
+            <MaterialIcons
               name="close"
               size={24}
               color={item.missing ? theme.danger : theme.text.secondary}
@@ -330,7 +326,7 @@ export default function Home() {
             onPress={() => deleteItem(item.id)}
             style={styles.actionButton}
           >
-            <Icon name="delete" size={24} color={theme.danger} />
+            <MaterialIcons name="delete" size={24} color={theme.danger} />
           </TouchableOpacity>
         </View>
 
@@ -399,39 +395,62 @@ export default function Home() {
   // Função para mostrar anúncios intersticiais foi substituída pelos hooks useInterstitialAd
 
   async function handleShareWhatsApp() {
-    if (!isPremium) {
-      // Se não for premium, mostra mensagem para obter premium
-      Alert.alert(
-        Strings.PREMIUM_REQUIRED_TITLE,
-        Strings.PREMIUM_WHATSAPP_MESSAGE,
-        [
-          { text: Strings.CONFIRM_CANCEL },
-          {
-            text: Strings.BTN_GET_PREMIUM,
-            onPress: () => router.push('/settings')
-          }
-        ]
-      );
-      return;
-    }
-
     try {
-      // Mostrar anúncio antes de compartilhar (só para usuários premium)
-      await showShareAd();
-      
       const text = generateWhatsAppText();
       const encodedText = encodeURIComponent(text);
-      const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+      
+      // Tentar URLs específicas do WhatsApp primeiro
+      const whatsappUrls = [
+        `whatsapp://send?text=${encodedText}`, // URL nativa do WhatsApp
+        `https://wa.me/?text=${encodedText}`,   // URL web do WhatsApp
+      ];
 
-      const canOpen = await Linking.canOpenURL(whatsappUrl);
+      let opened = false;
+      
+      for (const url of whatsappUrls) {
+        try {
+          const canOpen = await Linking.canOpenURL(url);
+          if (canOpen) {
+            await Linking.openURL(url);
+            opened = true;
+            break;
+          }
+        } catch (urlError) {
+          console.log(`Erro ao tentar URL: ${url}`, urlError);
+          continue;
+        }
+      }
 
-      if (canOpen) {
-        await Linking.openURL(whatsappUrl);
-      } else {
-        Alert.alert(Strings.ALERT_ERROR, Strings.MSG_ERROR_SHARE_WHATSAPP);
+      // Se não conseguiu abrir o WhatsApp, oferecer compartilhamento geral
+      if (!opened) {
+        Alert.alert(
+          "WhatsApp não disponível",
+          "Não foi possível abrir o WhatsApp. Deseja compartilhar por outro aplicativo?",
+          [
+            {
+              text: "Cancelar",
+              style: "cancel"
+            },
+            {
+              text: "Compartilhar",
+              onPress: async () => {
+                try {
+                  await Share.share({
+                    message: text,
+                    title: "Lista de Compras - Listou"
+                  });
+                } catch (shareError) {
+                  console.error("Erro ao compartilhar:", shareError);
+                  Alert.alert("Erro", "Não foi possível compartilhar a lista.");
+                }
+              }
+            }
+          ]
+        );
       }
     } catch (error) {
-      Alert.alert(Strings.ALERT_ERROR, Strings.MSG_ERROR_SHARE);
+      console.error("Erro ao compartilhar:", error);
+      Alert.alert("Erro", "Erro ao tentar compartilhar a lista.");
     }
   }
 
@@ -459,10 +478,7 @@ export default function Home() {
                 }]}
                 onPress={handleShareWhatsApp}
               >
-                {!isPremium && (
-                  <Icon name="lock" size={14} color="#ffffff" style={{ marginRight: 2 }} />
-                )}
-                <Icon name="share" size={18} color="#fff" />
+                <MaterialIcons name="share" size={18} color="#fff" />
                 <Text style={styles.historyButtonText}>{Strings.BTN_SHARE_WHATSAPP}</Text>
               </TouchableOpacity>
 
@@ -480,28 +496,10 @@ export default function Home() {
                   marginHorizontal: 4
                 }]}
                 onPress={() => {
-                  if (!isPremium) {
-                    // Se não for premium, mostra mensagem para obter premium
-                    Alert.alert(
-                      Strings.PREMIUM_REQUIRED_TITLE,
-                      Strings.PREMIUM_SAVE_LIST_MESSAGE,
-                      [
-                        { text: Strings.CONFIRM_CANCEL },
-                        {
-                          text: Strings.BTN_GET_PREMIUM,
-                          onPress: () => router.push('/settings')
-                        }
-                      ]
-                    );
-                  } else {
-                    setSaveListModalVisible(true);
-                  }
+                  setSaveListModalVisible(true);
                 }}
               >
-                {!isPremium && (
-                  <Icon name="lock" size={14} color="#ffffff" style={{ marginRight: 2 }} />
-                )}
-                <Icon name="save" size={18} color="#fff" />
+                <MaterialIcons name="save" size={18} color="#fff" />
                 <Text style={styles.saveButtonText}>{Strings.BTN_SAVE_LIST}</Text>
               </TouchableOpacity>
 
@@ -528,7 +526,7 @@ export default function Home() {
                   );
                 }}
               >
-                <Icon name="delete" size={18} color="#fff" />
+                <MaterialIcons name="delete" size={18} color="#fff" />
                 <Text style={styles.deleteButtonText}>{Strings.BTN_CLEAR}</Text>
               </TouchableOpacity>
             </>
@@ -554,7 +552,7 @@ export default function Home() {
             paddingHorizontal: 15,
             height: 56,
           }}>
-            <Icon name="search" size={20} color={theme.text.secondary} />
+            <MaterialIcons name="search" size={20} color={theme.text.secondary} />
             <TextInput
               value={filter}
               onChangeText={setFilter}
@@ -582,7 +580,7 @@ export default function Home() {
                   justifyContent: 'center'
                 }}
               >
-                <Icon name="close" size={20} color={theme.text.secondary} />
+                <MaterialIcons name="close" size={20} color={theme.text.secondary} />
               </TouchableOpacity>
             )}
           </View>
@@ -627,7 +625,7 @@ export default function Home() {
                   }}
                 >
                   <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                    <Icon
+                    <MaterialIcons
                       name={isExpanded ? "keyboard-arrow-down" : "keyboard-arrow-right"}
                       size={24}
                       color={theme.text.primary}
@@ -642,8 +640,8 @@ export default function Home() {
                       {category} ({categoryItems.length})
                     </Text>
                   </View>
-                  <Icon
-                    name={CATEGORY_ICONS[category] || "label"}
+                  <MaterialIcons
+                    name={(CATEGORY_ICONS[category] || "label") as any}
                     size={22}
                     color={theme.primary}
                   />
@@ -669,7 +667,7 @@ export default function Home() {
               style={styles.addButtonCentered}
               onPress={() => router.push('/add-item')}
             >
-              <Icon name="add" size={36} color="#fff" />
+              <MaterialIcons name="add" size={36} color="#fff" />
               <Text style={styles.addButtonText}>{Strings.BTN_ADD_ITEM}</Text>
             </TouchableOpacity>
           </View>
@@ -719,7 +717,7 @@ export default function Home() {
                   style={styles.chartsButton}
                   onPress={() => setShowCharts(!showCharts)}
                 >
-                  <Icon name={showCharts ? "keyboard-arrow-up" : "bar-chart"} size={24} color="#fff" />
+                  <MaterialIcons name={showCharts ? "keyboard-arrow-up" : "bar-chart"} size={24} color="#fff" />
                   <Text style={styles.chartsButtonText}>
                     {showCharts ? Strings.BTN_HIDE_CHARTS : Strings.BTN_TOGGLE_CHARTS}
                   </Text>
@@ -759,8 +757,8 @@ export default function Home() {
                         .map(([category, count], index) => (
                           <View key={category} style={styles.statisticsItem}>
                             <View style={[styles.statisticsRank, { backgroundColor: theme.primary }]}>
-                              <Icon
-                                name={CATEGORY_ICONS[category] || "label"}
+                              <MaterialIcons
+                                name={(CATEGORY_ICONS[category] || "label") as any}
                                 size={20}
                                 color={theme.text.inverse}
                               />
@@ -796,7 +794,7 @@ export default function Home() {
                 onPress={() => setAddItemModalVisible(false)}
                 style={styles.closeButton}
               >
-                <Icon name="close" size={24} color={theme.text.primary} />
+                <MaterialIcons name="close" size={24} color={theme.text.primary} />
               </TouchableOpacity>
             </View>
 
@@ -855,7 +853,7 @@ export default function Home() {
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="add" size={20} color="#fff" style={{ marginRight: 8 }} />
+                <MaterialIcons name="add" size={20} color="#fff" style={{ marginRight: 8 }} />
                 <Text style={styles.saveButtonText}>{Strings.BTN_ADD_ITEM}</Text>
               </View>
             </TouchableOpacity>
@@ -877,7 +875,7 @@ export default function Home() {
                 onPress={() => setSaveListModalVisible(false)}
                 style={styles.closeButton}
               >
-                <Icon name="close" size={24} color={theme.text.primary} />
+                <MaterialIcons name="close" size={24} color={theme.text.primary} />
               </TouchableOpacity>
             </View>
 
@@ -916,9 +914,6 @@ export default function Home() {
                   await AsyncStorage.setItem("@shopping_list", JSON.stringify([]));
                   setSaveListModalVisible(false);
 
-                  // Mostrar anúncio intersticial ao salvar a lista
-                  showSaveAd();
-
                   Alert.alert(
                     Strings.ALERT_LIST_SAVED,
                     Strings.MSG_LIST_MOVED_HISTORY,
@@ -938,7 +933,7 @@ export default function Home() {
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="save" size={20} color="#fff" style={{ marginRight: 8 }} />
+                <MaterialIcons name="save" size={20} color="#fff" style={{ marginRight: 8 }} />
                 <Text style={styles.saveButtonText}>{Strings.CONFIRM_OK}</Text>
               </View>
             </TouchableOpacity>
@@ -955,7 +950,7 @@ export default function Home() {
                 onPress={() => setModalVisible(false)}
                 style={styles.closeButton}
               >
-                <Icon name="close" size={24} color={theme.text.primary} />
+                <MaterialIcons name="close" size={24} color={theme.text.primary} />
               </TouchableOpacity>
             </View>
 
@@ -970,7 +965,7 @@ export default function Home() {
                 }}
                 onPress={() => setPriceType('fixed')}
               >
-                <Icon
+                <MaterialIcons
                   name={priceType === 'fixed' ? 'radio-button-checked' : 'radio-button-unchecked'}
                   size={20}
                   color={theme.primary}
@@ -989,7 +984,7 @@ export default function Home() {
                 }}
                 onPress={() => setPriceType('weight')}
               >
-                <Icon
+                <MaterialIcons
                   name={priceType === 'weight' ? 'radio-button-checked' : 'radio-button-unchecked'}
                   size={20}
                   color={theme.primary}
@@ -1054,7 +1049,7 @@ export default function Home() {
                     padding: 8,
                     borderRadius: 4
                   }}>
-                    <Icon name="calculate" size={20} color={theme.success} style={{ marginRight: 8 }} />
+                    <MaterialIcons name="calculate" size={20} color={theme.success} style={{ marginRight: 8 }} />
                     <Text style={{ color: theme.text.primary, fontWeight: '500' }}>
                       {Strings.TITLE_TOTAL}: R$ {(
                         parseFloat(priceInput.replace(',', '.')) *
@@ -1086,7 +1081,7 @@ export default function Home() {
                 onPress={confirmGot}
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name="check" size={20} color="#fff" style={{ marginRight: 8 }} />
+                  <MaterialIcons name="check" size={20} color="#fff" style={{ marginRight: 8 }} />
                   <Text style={styles.saveButtonText}>{Strings.CONFIRM_OK}</Text>
                 </View>
               </TouchableOpacity>
@@ -1096,7 +1091,7 @@ export default function Home() {
                 onPress={() => setModalVisible(false)}
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name="close" size={20} color="#fff" style={{ marginRight: 8 }} />
+                  <MaterialIcons name="close" size={20} color="#fff" style={{ marginRight: 8 }} />
                   <Text style={styles.deleteButtonText}>{Strings.CONFIRM_CANCEL}</Text>
                 </View>
               </TouchableOpacity>
@@ -1139,15 +1134,15 @@ function PickerDropdown({
       >
         <View style={pickerStyles.selectedLeft}>
           <View style={pickerStyles.selectedIcon}>
-            <Icon
-              name={getCategoryIcon(selectedValue)}
+            <MaterialIcons
+              name={getCategoryIcon(selectedValue) as any}
               size={22}
               color="#1976d2"
             />
           </View>
           <Text style={pickerStyles.selectedText}>{selectedValue}</Text>
         </View>
-        <Icon
+        <MaterialIcons
           name={open ? "keyboard-arrow-up" : "keyboard-arrow-down"}
           size={24}
           color="#666"
@@ -1195,8 +1190,8 @@ function PickerDropdown({
                     }}
                   >
                     <View style={pickerStyles.optionIcon}>
-                      <Icon
-                        name={getCategoryIcon(opt)}
+                      <MaterialIcons
+                        name={getCategoryIcon(opt) as any}
                         size={22}
                         color="#1976d2"
                       />
@@ -1204,7 +1199,7 @@ function PickerDropdown({
                     <Text style={pickerStyles.optionText}>{opt}</Text>
                     {selectedValue === opt && (
                       <View style={pickerStyles.optionCheck}>
-                        <Icon name="check" size={22} color="#1976d2" />
+                        <MaterialIcons name="check" size={22} color="#1976d2" />
                       </View>
                     )}
                   </TouchableOpacity>

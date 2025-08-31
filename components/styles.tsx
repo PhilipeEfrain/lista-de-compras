@@ -582,4 +582,20 @@ export const createHistoryStyles = (theme: Theme) => StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 8,
   },
+  floatingAddButton: {
+    position: 'absolute',
+    bottom: 140, // Ajustado para ficar acima do banner de anúncio
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: theme.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: theme.shadow.color,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+  },
 });

@@ -1,4 +1,3 @@
-import { usePremium } from '@/context/PremiumContext';
 import { BottomBannerAd, TopBannerAd } from '@/utils/AdManager';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -10,19 +9,15 @@ interface AdBannerProps {
 }
 
 export default function AdBanner({ placement = 'bottom' }: AdBannerProps) {
-  const { isPremium } = usePremium();
-  if (isPremium) {
-    return null;
-  }
-
+  // Agora os anúncios sempre são exibidos (sem verificação premium)
   return (
     <View style={[
       styles.adContainer,
       placement === 'top' ? styles.topBanner : styles.bottomBanner
     ]}>
       {placement === 'top' 
-        ? <TopBannerAd showAd={!isPremium} />
-        : <BottomBannerAd showAd={!isPremium} />
+        ? <TopBannerAd showAd={true} />
+        : <BottomBannerAd showAd={true} />
       }
     </View>
   );

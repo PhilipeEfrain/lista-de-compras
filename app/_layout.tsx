@@ -8,7 +8,6 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Strings } from '@/constants/Strings';
-import { PremiumProvider } from '@/context/PremiumContext';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 
 function TabsNavigator() {
@@ -110,7 +109,7 @@ function TabsNavigator() {
             </TouchableOpacity>
           ),
         }}
-      />    
+      />
       <Tabs.Screen name="+not-found" options={{ href: null }} />
     </Tabs>
   );
@@ -129,9 +128,7 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <PremiumProvider>
-        <RootLayoutNav />
-      </PremiumProvider>
+      <RootLayoutNav />
     </ThemeProvider>
   );
 }

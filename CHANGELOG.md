@@ -1,5 +1,50 @@
 # Changelog
 
+## [2.0.4] - 2025-08-31
+
+### 🚀 REMOÇÃO COMPLETA DAS LIMITAÇÕES PREMIUM
+- **✅ FUNCIONALIDADES 100% GRATUITAS**: Removidas todas as restrições de uso
+- **📱 WHATSAPP LIBERADO**: Compartilhamento via WhatsApp sem limitações
+- **💾 HISTÓRICO LIBERADO**: Acesso completo ao histórico para todos os usuários
+- **💯 SALVAR LISTAS LIBERADO**: Salvamento ilimitado de listas no histórico
+
+### 🔧 CORREÇÕES DO WHATSAPP
+- **🔗 MÚLTIPLAS URLS**: Implementados fallbacks para compatibilidade (`whatsapp://`, `https://wa.me/`)
+- **📲 SHARE API NATIVO**: Compartilhamento alternativo via Share API do React Native
+- **⚙️ INTENT FILTERS**: Configurações Android para deep linking do WhatsApp
+- **🛠️ TRATAMENTO ROBUSTO**: Melhor gerenciamento de erros e fallbacks
+
+### 🗂️ NAVEGAÇÃO OTIMIZADA
+- **🏠 LISTA**: Tela principal de gerenciamento de listas
+- **📜 HISTÓRICO**: Histórico completo sem restrições
+- **➕ ADICIONAR ITEM**: Aba dedicada restaurada para adicionar itens
+- **⚙️ CONFIGURAÇÕES**: Tela simplificada "Em desenvolvimento" com seção "Sobre"
+
+### 🎨 MELHORIAS DE INTERFACE
+- **❌ BOTÃO FLUTUANTE REMOVIDO**: Navegação através das abas
+- **📋 SEÇÃO SOBRE**: Informações do app, versão e desenvolvedor
+- **🎯 UX SIMPLIFICADA**: Experiência mais intuitiva e direta
+- **🔄 REDIRECIONAMENTO**: Lista vazia redireciona para aba "Adicionar Item"
+
+### 🧹 LIMPEZA DE CÓDIGO
+- **🗑️ CONTEXTO PREMIUM**: Removido PremiumProvider do layout principal
+- **📱 ADBANNER ATUALIZADO**: Anúncios sempre exibidos (sem verificação premium)
+- **🏷️ IMPORTS LIMPOS**: Remoção de imports não utilizados relacionados ao premium
+- **🎭 TIPOS CORRIGIDOS**: Correção de tipos TypeScript para ícones do MaterialIcons
+
+### 📋 CONFIGURAÇÕES ANDROID
+- **🔗 DEEP LINKING**: Intent filters para URLs do WhatsApp
+- **📱 COMPATIBILIDADE**: Melhor suporte a schemes `whatsapp://` e `https://wa.me`
+- **🚀 PERFORMANCE**: Otimizações para funcionamento em APK
+
+### 🎯 RESULTADO FINAL
+- ✅ App 100% funcional e gratuito
+- ✅ WhatsApp funcionando com fallbacks robustos
+- ✅ Navegação em 4 abas bem organizadas
+- ✅ Todas as funcionalidades premium liberadas
+- ✅ Interface limpa e intuitiva
+- ✅ Código otimizado e bem estruturado
+
 ## [2.0.3] - 2025-08-31
 
 ### 🎭 SOLUÇÃO DEFINITIVA - MODO MOCK
