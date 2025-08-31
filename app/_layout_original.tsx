@@ -3,6 +3,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } fro
 import { useFonts } from 'expo-font';
 import { Tabs } from 'expo-router/tabs';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -10,6 +11,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Strings } from '@/constants/Strings';
 import { PremiumProvider } from '@/context/PremiumContext';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
+import { initializeAds } from '@/utils/AdManager';
 
 function TabsNavigator() {
   const { isDark, toggleTheme } = useTheme();
@@ -121,7 +123,22 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  // SEM inicialização de anúncios - aguardando aprovação do AdMob
+  // REMOVIDO: initializeAds() para debug do crash
+  // useEffect(() => {
+  //   // Inicializar anúncios de forma assíncrona e segura
+  //   const initAds = async () => {
+  //     try {
+  //       await initializeAds();
+  //     } catch (error) {
+  //       console.warn('Erro ao inicializar anúncios, continuando sem eles:', error);
+  //     }
+  //   };
+  //   
+  //   // Aguardar um pouco antes de inicializar anúncios
+  //   const timeout = setTimeout(initAds, 2000);
+  //   
+  //   return () => clearTimeout(timeout);
+  // }, []);
 
   if (!loaded) {
     return null;

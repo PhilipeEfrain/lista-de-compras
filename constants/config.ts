@@ -4,7 +4,7 @@
 
 export const APP_CONFIG = {
   // Controle de anúncios
-  ADS_ENABLED: true, // Habilitado agora que temos o App ID correto
+  ADS_ENABLED: false, // Desabilitado - aguardando revisão do AdMob
   
   // Configurações de debug
   DEBUG_MODE: __DEV__,

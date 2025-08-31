@@ -2,7 +2,7 @@
   "expo": {
     "name": "Listou",
     "slug": "lista-de-compras",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/shopping-card-svgrepo-com.png",
     "description": "Aplicativo Listou - Gerenciador inteligente de listas de compras com categorização, histórico e análise de gastos",
@@ -35,17 +35,6 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
-        }
-      ],
-      [
-        "react-native-google-mobile-ads",
-        {
-          "android_app_id": "ca-app-pub-8227454086945331~3137771321",
-          "ios_app_id": "ca-app-pub-8227454086945331~3137771321",
-          "delay_app_measurement_init": true,
-          "optimize_initialization": true,
-          "optimize_ad_loading": true,
-          "user_tracking_usage_description": "Este aplicativo usa anúncios para manter o serviço gratuito."
         }
       ]
     ],
